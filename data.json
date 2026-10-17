@@ -1,0 +1,535 @@
+{
+ "updated": "2026-10-17",
+ "estimators": [
+  {
+   "id": "ef",
+   "name": "EstimateFlorida (2026 Florida prices)",
+   "url": "https://estimateflorida.com/inground-pool-cost-estimator/",
+   "items": {
+    "fiberglass": [
+     45000,
+     110000
+    ],
+    "gunite": [
+     55000,
+     150000
+    ],
+    "pool_spa": [
+     70000,
+     180000
+    ],
+    "enclosure": [
+     15000,
+     45000
+    ],
+    "permits_engineering": [
+     1500,
+     4500
+    ]
+   }
+  },
+  {
+   "id": "lc",
+   "name": "LatestCost (Florida pool cost calculator 2026)",
+   "url": "https://latestcost.com/pool-cost-calculator-florida-homeowners/",
+   "items": {
+    "inground_any": [
+     45000,
+     120000
+    ]
+   },
+   "note": "Reports an average of $78,000 for an installed inground pool; screened enclosure 'roughly $8,000-$20,000 or more'."
+  },
+  {
+   "id": "pp",
+   "name": "PoolPad (Florida typical project)",
+   "url": "https://www.poolpad.com/pool-builders/",
+   "items": {
+    "inground_any": [
+     43000,
+     133000
+    ]
+   },
+   "note": "Florida typical project $68,000; upper bound listed as $133,000+."
+  },
+  {
+   "id": "ebc",
+   "name": "ExpertBuildCalc (screen enclosure calculator)",
+   "url": "https://expertbuildcalc.com/landscaping/pool-screen-enclosure-cost-calculator/",
+   "items": {
+    "enclosure": [
+     8000,
+     35000
+    ]
+   },
+   "note": "$8-$22 per sq ft of footprint; most backyard enclosures $8,000-$35,000."
+  },
+  {
+   "id": "bmi",
+   "name": "BuildMat Insight (Florida pool size & scope)",
+   "url": "https://buildmatinsight.com/construction-cost/app-cost/florida-swimming-pool-cost-size-scope-calculator",
+   "items": {
+    "enclosure_16x32": [
+     22000,
+     35000
+    ]
+   },
+   "note": "Standard screen (110 mph) $18-$24/sq ft footprint; HVHZ coastal $28-$38/sq ft."
+  },
+  {
+   "id": "ae",
+   "name": "AutomatedEstimating (screen enclosure calculator)",
+   "url": "https://automatedestimating.com/calculators/screen-enclosure",
+   "items": {},
+   "note": "Wind-borne debris and HVHZ zones can raise the aluminum portion 15-30% versus a standard zone."
+  }
+ ],
+ "lake_permits": {
+  "source": "Lake County Building Services - Permits Issued by Type (official public report)",
+  "url": "https://c.lakecountyfl.gov/offices/building_services/permit_activity_reports/permits_issued.aspx",
+  "coverage": "Unincorporated Lake County plus the Town of Montverde only (other cities issue their own permits).",
+  "pulled": "2026-10-17",
+  "periods": {
+   "2026 (Jan 1 - Sep 30)": {
+    "enclosure": {
+     "count": 358,
+     "total": 8853950,
+     "median": 21000,
+     "p25": 16000,
+     "p75": 29000
+    },
+    "pool": {
+     "count": 442,
+     "total": 4538349,
+     "share_under_5000": "351 of 437 parsed",
+     "median_5000plus": 30000
+    }
+   },
+   "2025 (full year)": {
+    "enclosure": {
+     "count": 448,
+     "total": 10977000,
+     "median": 20000,
+     "p25": 16000,
+     "p75": 31000
+    },
+    "pool": {
+     "count": 497,
+     "total": 5311685,
+     "share_under_5000": "415 of 490 parsed",
+     "median_5000plus": 55500
+    }
+   }
+  }
+ },
+ "third_party_permit_aggregates": [
+  {
+   "county": "sumter",
+   "period": "Feb 2026",
+   "permits": 69,
+   "total": 3110000,
+   "url": "https://blog.hbweekly.com/florida-new-swimming-pool-construction-trends-february-2026/"
+  },
+  {
+   "county": "sumter",
+   "period": "Mar 2026",
+   "permits": 114,
+   "total": 5130000,
+   "url": "https://blog.hbweekly.com/florida-new-swimming-pool-construction-report-march-2026/"
+  },
+  {
+   "county": "sumter",
+   "period": "May 2026",
+   "permits": 70,
+   "total": 3150000,
+   "url": "https://blog.hbweekly.com/florida-new-swimming-pool-construction-may-2026-report/"
+  },
+  {
+   "county": "sumter",
+   "period": "Aug 2026",
+   "permits": 125,
+   "total": 5625000,
+   "url": "https://blog.hbweekly.com/florida-swimming-pool-construction-report-august-2026/"
+  },
+  {
+   "county": "orange",
+   "period": "Nov 2025",
+   "permits": 69,
+   "total": 6256116,
+   "url": "https://blog.hbweekly.com/florida-swimming-pool-construction-report-november-2025/"
+  },
+  {
+   "county": "brevard",
+   "period": "Nov 2025",
+   "permits": 53,
+   "total": 3792721,
+   "url": "https://blog.hbweekly.com/florida-swimming-pool-construction-report-november-2025/"
+  }
+ ],
+ "counties": [
+  {
+   "slug": "lake",
+   "name": "Lake County",
+   "portal": "https://lakecountyfl.gov/building-services/permitting-information",
+   "status": "official aggregate pulled (enclosures usable; pool values mostly nominal)"
+  },
+  {
+   "slug": "sumter",
+   "name": "Sumter County",
+   "portal": "https://www.sumtercountyfl.gov/77/Building-Services",
+   "status": "pending: county permits run on Citizenserve (search only); no public aggregate report found. Third-party monthly totals shown."
+  },
+  {
+   "slug": "orange",
+   "name": "Orange County",
+   "portal": "https://fasttrack.ocfl.net/OnlineServices/Permit-Building.aspx",
+   "status": "partial: City of Orlando official open data pulled (Jan\u2013Sep 2026). Unincorporated Orange County still pending: FastTrack search limited to 6-month windows and the 'Download building permit data' FTP (ftp.ocfl.net) did not respond again on 2026-10-17."
+  },
+  {
+   "slug": "seminole",
+   "name": "Seminole County",
+   "portal": "https://scwebapp2.seminolecountyfl.gov:6443/buildingpublicrequestportal/",
+   "status": "pending: county Building Public Request Portal timed out again from our server on 2026-10-17; retry from another network or request an export."
+  },
+  {
+   "slug": "osceola",
+   "name": "Osceola County",
+   "portal": "https://permits.osceola.org/CitizenAccess/Cap/CapHome.aspx?module=Building",
+   "status": "pending: Accela Citizen Access has a 'Pool Enclosure Master File' record type but no aggregate valuation report; county publishes only annual utilization totals."
+  },
+  {
+   "slug": "volusia",
+   "name": "Volusia County",
+   "portal": "https://www.volusia.org/services/growth-and-resource-management/building-and-zoning/permit-and-zoning-center/issued-permit-reports-and-links/",
+   "status": "pending: rechecked 2026-10-17; the posted weekly 'Permits Issued by Type' report is still dated December 2018."
+  },
+  {
+   "slug": "brevard",
+   "name": "Brevard County",
+   "portal": "https://www.brevardfl.gov/PlanningAndDevelopment/BuildingPermits/PermitSearch",
+   "status": "pending: BASS permit search (2003-present) is record-by-record; no permit dataset found on the Brevard GIS Open Data Hub."
+  },
+  {
+   "slug": "polk",
+   "name": "Polk County",
+   "portal": "https://www.polkfl.gov/services/building/",
+   "status": "pending: rechecked 2026-10-17; the county permit GIS layer holds only new-construction records (RES NEW / COM NEW), no enclosure or pool permits. Accela is record-by-record."
+  }
+ ],
+ "user_quotes": [],
+ "builder_contributed": {
+  "status": "loaded",
+  "label": "Builder-contributed quotes (anonymized)",
+  "caveat": "These are one builder's quotes (Apr\u2013Oct 2026): a small sample with mixed statuses (quoted, signed, lost). Prices are line items as written in each proposal. All new pools are gunite. No screen type (mesh) is stated in any document.",
+  "permits_included": true,
+  "permits_note": "Pool and screen enclosure prices in these builder quotes include permitting costs.",
+  "quote_count": 27,
+  "summary": {
+   "all": {
+    "stats": {
+     "pool_base": {
+      "n": 26,
+      "min": 40635,
+      "max": 66559,
+      "median": 47202.5
+     },
+     "total_all": {
+      "n": 26,
+      "min": 51131,
+      "max": 230965,
+      "median": 96767.5
+     },
+     "total_spa": {
+      "n": 13,
+      "min": 83606,
+      "max": 230965,
+      "median": 110066
+     },
+     "total_nospa": {
+      "n": 13,
+      "min": 51131,
+      "max": 141235,
+      "median": 86230
+     },
+     "spa": {
+      "n": 13,
+      "min": 11640,
+      "max": 20680,
+      "median": 13260
+     },
+     "encl_dome": {
+      "n": 9,
+      "min": 10569,
+      "max": 20978,
+      "median": 12463
+     },
+     "encl_mansard": {
+      "n": 1,
+      "min": 12460,
+      "max": 12460,
+      "median": null
+     },
+     "encl_other": {
+      "n": 1,
+      "min": 27996,
+      "max": 27996,
+      "median": null
+     }
+    },
+    "status_counts": {
+     "lost": 6,
+     "quoted": 17,
+     "signed": 4
+    },
+    "quotes": 27
+   },
+   "lake": {
+    "stats": {
+     "pool_base": {
+      "n": 9,
+      "min": 40635,
+      "max": 55502,
+      "median": 46965
+     },
+     "total_all": {
+      "n": 9,
+      "min": 76350,
+      "max": 117476,
+      "median": 90313
+     },
+     "total_spa": {
+      "n": 2,
+      "min": 111707,
+      "max": 117476,
+      "median": null
+     },
+     "total_nospa": {
+      "n": 7,
+      "min": 76350,
+      "max": 104242,
+      "median": 86230
+     },
+     "spa": {
+      "n": 2,
+      "min": 11665,
+      "max": 12090,
+      "median": null
+     },
+     "encl_dome": {
+      "n": 4,
+      "min": 11700,
+      "max": 16490,
+      "median": 12013.5
+     },
+     "encl_mansard": {
+      "n": 1,
+      "min": 12460,
+      "max": 12460,
+      "median": null
+     },
+     "encl_other": null
+    },
+    "status_counts": {
+     "quoted": 8,
+     "signed": 1
+    },
+    "quotes": 9
+   },
+   "sumter": {
+    "stats": {
+     "pool_base": null,
+     "total_all": null,
+     "total_spa": null,
+     "total_nospa": null,
+     "spa": null,
+     "encl_dome": null,
+     "encl_mansard": null,
+     "encl_other": null
+    },
+    "status_counts": {},
+    "quotes": 0
+   },
+   "orange": {
+    "stats": {
+     "pool_base": {
+      "n": 15,
+      "min": 40809,
+      "max": 66559,
+      "median": 46825
+     },
+     "total_all": {
+      "n": 15,
+      "min": 51131,
+      "max": 230965,
+      "median": 101523
+     },
+     "total_spa": {
+      "n": 10,
+      "min": 83606,
+      "max": 230965,
+      "median": 108088.0
+     },
+     "total_nospa": {
+      "n": 5,
+      "min": 51131,
+      "max": 141235,
+      "median": 92350
+     },
+     "spa": {
+      "n": 10,
+      "min": 11640,
+      "max": 18005,
+      "median": 13330.0
+     },
+     "encl_dome": {
+      "n": 5,
+      "min": 10569,
+      "max": 20978,
+      "median": 15030
+     },
+     "encl_mansard": null,
+     "encl_other": {
+      "n": 1,
+      "min": 27996,
+      "max": 27996,
+      "median": null
+     }
+    },
+    "status_counts": {
+     "lost": 6,
+     "quoted": 7,
+     "signed": 3
+    },
+    "quotes": 16
+   },
+   "seminole": {
+    "stats": {
+     "pool_base": {
+      "n": 1,
+      "min": 48514,
+      "max": 48514,
+      "median": null
+     },
+     "total_all": {
+      "n": 1,
+      "min": 82937,
+      "max": 82937,
+      "median": null
+     },
+     "total_spa": null,
+     "total_nospa": {
+      "n": 1,
+      "min": 82937,
+      "max": 82937,
+      "median": null
+     },
+     "spa": null,
+     "encl_dome": null,
+     "encl_mansard": null,
+     "encl_other": null
+    },
+    "status_counts": {
+     "quoted": 1
+    },
+    "quotes": 1
+   },
+   "osceola": {
+    "stats": {
+     "pool_base": null,
+     "total_all": null,
+     "total_spa": null,
+     "total_nospa": null,
+     "spa": null,
+     "encl_dome": null,
+     "encl_mansard": null,
+     "encl_other": null
+    },
+    "status_counts": {},
+    "quotes": 0
+   },
+   "volusia": {
+    "stats": {
+     "pool_base": null,
+     "total_all": null,
+     "total_spa": null,
+     "total_nospa": null,
+     "spa": null,
+     "encl_dome": null,
+     "encl_mansard": null,
+     "encl_other": null
+    },
+    "status_counts": {},
+    "quotes": 0
+   },
+   "brevard": {
+    "stats": {
+     "pool_base": null,
+     "total_all": null,
+     "total_spa": null,
+     "total_nospa": null,
+     "spa": null,
+     "encl_dome": null,
+     "encl_mansard": null,
+     "encl_other": null
+    },
+    "status_counts": {},
+    "quotes": 0
+   },
+   "polk": {
+    "stats": {
+     "pool_base": null,
+     "total_all": null,
+     "total_spa": null,
+     "total_nospa": null,
+     "spa": null,
+     "encl_dome": null,
+     "encl_mansard": null,
+     "encl_other": null
+    },
+    "status_counts": {},
+    "quotes": 0
+   }
+  },
+  "summary_note": "Summary statistics only; individual quotes are kept private. Medians only where n>=3."
+ },
+ "orlando_permits": {
+  "source": "City of Orlando Open Data \u2013 Permit Applications (official public dataset ryhf-m453)",
+  "url": "https://data.cityoforlando.net/Permitting/Permit-Applications/ryhf-m453",
+  "pulled": "2026-10-17",
+  "coverage": "City of Orlando only (inside Orange County); unincorporated Orange County and other cities are not included.",
+  "period": "2026 (Jan 1 - Sep 30, by permit issue date)",
+  "method": "Building permits only. Screen enclosure = project description contains 'screen enclosure', 'pool enclosure' or 'pool screen' (screen rooms, porches and trash enclosures excluded). Pool = work type 'Pool' with residential plan review. Only estimated cost values were pulled; no names or addresses stored.",
+  "enclosure": {
+   "count": 25,
+   "with_value": 25,
+   "median": 18000.0,
+   "p25": 14616.0,
+   "p75": 21660.5,
+   "min": 8821.0,
+   "max": 50000.0,
+   "share_under_5000": "0/25"
+  },
+  "pool": {
+   "count": 218,
+   "with_value": 218,
+   "median": 65000.0,
+   "p25": 50000.0,
+   "p75": 92980.0,
+   "min": 1.0,
+   "max": 300000.0,
+   "share_under_5000": "7/218"
+  }
+ },
+ "statewide_third_party": [
+  {
+   "name": "FloridaArch \u2013 screen enclosure in Florida permit records",
+   "url": "https://floridaarch.com/data/permits/screen-enclosure",
+   "through": "August 2026",
+   "permits": 89818,
+   "with_value": 86441,
+   "median": 11000,
+   "middle_half": "$7k\u2013$17.4k",
+   "note": "Statewide across the jurisdictions they cover; declared values, not contract prices."
+  }
+ ]
+}
