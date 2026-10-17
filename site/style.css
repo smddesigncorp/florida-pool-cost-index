@@ -1,0 +1,10 @@
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;color:#13222f;background:#f4f8fb}
+header{background:#0a5a7d;color:#fff;padding:14px 20px}header a{color:#fff;text-decoration:none;margin-right:14px;font-size:14px}
+header .brand{font-size:21px;font-weight:700;display:block;margin-bottom:6px}main{max-width:1050px;margin:auto;padding:16px}
+.card{background:#fff;border:1px solid #d7e2ea;border-radius:8px;padding:16px;margin:14px 0}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;color:#fff;vertical-align:middle}
+.official{background:#1e8449}.third{background:#7d6608}.est{background:#5d6d7e}.pending{background:#a04000}.builder{background:#6c3483}
+table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #e3eaf0;padding:7px;text-align:left;font-size:14px}
+.big{font-size:28px;font-weight:700}.muted{color:#5b6b78;font-size:13px}.disc{background:#fdf2e9;border-color:#f0b27a}
+input,select{padding:8px;border:1px solid #c5d2dc;border-radius:6px;margin:4px 6px 8px 0}button{background:#0a5a7d;color:#fff;border:0;padding:9px 16px;border-radius:6px;cursor:pointer}
+footer{text-align:center;color:#6b7b88;font-size:12px;padding:20px}
