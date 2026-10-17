@@ -97,7 +97,7 @@ document.getElementById('res').innerHTML=out?'<ul>'+out+'</ul>':'<p>No published
 copts="".join(f'<option value="{c["slug"]}">{E(c["name"])}</option>' for c in D['counties'])
 check=check.replace("COUNTYOPTS",copts).replace("ESTJSON",json.dumps([{"name":e["name"],"url":e["url"],"items":e["items"]} for e in D['estimators']])).replace("LAKEJSON",json.dumps(P26['enclosure'])).replace("ORLJSON",json.dumps(OP['enclosure'])).replace("BCJSON",json.dumps(dict([("all",bcalc(None))]+[(c['slug'],bcalc(c['slug'])) for c in D['counties']])))
 BH=bcalc(None)
-home=f"""<h1>What Florida pools and screen enclosures really cost</h1><p>Real quotes shared by Florida homeowners, official permit data, and published estimates, each clearly labeled. Starting in Central Florida.</p>
+home=f"""<h1>What Florida Pools and Screen Enclosures Really Cost</h1><p>Real quotes shared by Florida homeowners, official permit data, and published estimates, each clearly labeled. Starting in Central Florida.</p>
 <div class="grid"><div class="card"><div class="muted">Lake County screen enclosures, median declared permit value (Jan–Sep 2026)</div><div class="big">{money(P26['enclosure']['median'])}</div><span class="tag official">Official permit data</span> <span class="muted">{P26['enclosure']['count']} permits</span></div>
 <div class="card"><div class="muted">Florida fiberglass pool, published range</div><div class="big">$45k–$110k</div><span class="tag est">Published estimate</span> <span class="muted">EstimateFlorida</span></div>
 <div class="card"><div class="muted">Florida gunite pool, published range</div><div class="big">$55k–$150k</div><span class="tag est">Published estimate</span> <span class="muted">EstimateFlorida</span></div>
