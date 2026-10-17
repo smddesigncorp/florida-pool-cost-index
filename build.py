@@ -1,26 +1,119 @@
-import json,os,html
+import json,os,html,re
 D=json.load(open('data.json')); OUT='site'; os.makedirs(OUT,exist_ok=True)
 E=html.escape
 def money(v): return "${:,.0f}".format(v)
-CSS="""*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;color:#13222f;background:#f4f8fb}
-header{background:#0a5a7d;color:#fff;padding:14px 20px}header a{color:#fff;text-decoration:none;margin-right:14px;font-size:14px}
-header .brand{font-size:21px;font-weight:700;display:block;margin-bottom:6px}main{max-width:1050px;margin:auto;padding:16px}
-.card{background:#fff;border:1px solid #d7e2ea;border-radius:8px;padding:16px;margin:14px 0}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
-.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;color:#fff;vertical-align:middle}
-.official{background:#1e8449}.third{background:#7d6608}.est{background:#5d6d7e}.pending{background:#a04000}.builder{background:#6c3483}
-table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #e3eaf0;padding:7px;text-align:left;font-size:14px}
-.big{font-size:28px;font-weight:700}.muted{color:#5b6b78;font-size:13px}.disc{background:#fdf2e9;border-color:#f0b27a}
-input,select{padding:8px;border:1px solid #c5d2dc;border-radius:6px;margin:4px 6px 8px 0}button{background:#0a5a7d;color:#fff;border:0;padding:9px 16px;border-radius:6px;cursor:pointer}
-footer{text-align:center;color:#6b7b88;font-size:12px;padding:20px}"""
+# ---------- Brand: logo mark (pool with tile edge, sun, waves) ----------
+MARK_DEFS='''<defs><linearGradient id="fpciW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5fe0ec"/><stop offset="1" stop-color="#0a86a8"/></linearGradient></defs>'''
+MARK_BODY='''<rect x="3" y="3" width="58" height="58" rx="16" fill="#fff"/><rect x="3" y="3" width="58" height="58" rx="16" fill="none" stroke="#0a7ea4" stroke-width="3" stroke-dasharray="7 3"/><rect x="9" y="9" width="46" height="46" rx="11" fill="url(#fpciW)"/><circle cx="43" cy="21" r="7" fill="#ffd23f"/><path d="M15 35q4.5-5 9 0t9 0t9 0t9 0" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/><path d="M15 45q4.5-5 9 0t9 0t9 0t9 0" fill="none" stroke="#e0fbff" stroke-width="3.6" stroke-linecap="round" opacity=".85"/>'''
+def mark(size=44,cls="logo-mark"): return f'<svg class="{cls}" width="{size}" height="{size}" viewBox="0 0 64 64" aria-hidden="true" focusable="false">{MARK_DEFS}{MARK_BODY}</svg>'
+LOGO_SVG=f'''<svg xmlns="http://www.w3.org/2000/svg" width="420" height="64" viewBox="0 0 420 64" role="img" aria-label="Florida Pool Cost Index">{MARK_DEFS}{MARK_BODY}<text x="76" y="30" font-family="Nunito, 'Trebuchet MS', Arial, sans-serif" font-size="24" font-weight="900" fill="#073b52">Florida Pool</text><text x="76" y="54" font-family="Nunito, 'Trebuchet MS', Arial, sans-serif" font-size="20" font-weight="800" fill="#0a7ea4">Cost Index</text></svg>'''
+FAV_SVG=f'<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">{MARK_DEFS}{MARK_BODY}</svg>'
+APPLE_SVG=f'<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 64 64"><rect width="64" height="64" fill="#fdf6ea"/><g transform="translate(4 4) scale(.875)">{MARK_DEFS}{MARK_BODY}</g></svg>'
+def write_brand_assets():
+    open(os.path.join(OUT,'logo.svg'),'w').write(LOGO_SVG)
+    open(os.path.join(OUT,'favicon.svg'),'w').write(FAV_SVG)
+    try:
+        import cairosvg,io
+        from PIL import Image
+        cairosvg.svg2png(bytestring=APPLE_SVG.encode(),write_to=os.path.join(OUT,'apple-touch-icon.png'),output_width=180,output_height=180)
+        png=cairosvg.svg2png(bytestring=FAV_SVG.encode(),output_width=64,output_height=64)
+        Image.open(io.BytesIO(png)).convert('RGBA').save(os.path.join(OUT,'favicon.ico'),sizes=[(32,32),(16,16)])
+    except ImportError:
+        print("cairosvg/Pillow not installed: favicon.ico and apple-touch-icon.png left as-is")
+# Caustic light pattern (pool-floor ripples) as an inline SVG data URI
+CAUSTIC="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='120' viewBox='0 0 160 120'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' opacity='.55'%3E%3Cpath d='M-5 20c15-12 30 8 45-2s25-14 40 0 30 6 40-4 25 2 45 6'/%3E%3Cpath d='M-5 62c18 10 28-12 46-4s22 16 38 4 28-10 42 0 24 6 44-2'/%3E%3Cpath d='M-5 102c14-8 26 10 42 2s30-14 44-2 26 8 40-2 22-4 44 4'/%3E%3Cpath d='M30 0c-6 14 10 22 4 36s-12 22-2 34 4 30 0 50' opacity='.6'/%3E%3Cpath d='M110 0c8 12-8 24 0 38s14 22 2 34-6 28 0 48' opacity='.6'/%3E%3C/g%3E%3C/svg%3E\")"
+WAVE='<svg viewBox="0 0 1440 70" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 34c120 26 240 26 360 6s240-34 360-14 240 40 360 26 240-30 360-20v38H0z" fill="#fdf6ea"/><path d="M0 50c160-18 300 14 460 6s300-30 470-14 330 26 510 8" fill="none" stroke="#bdeef3" stroke-width="3"/></svg>'
+DIVIDER='<div class="wave-div" aria-hidden="true"><svg viewBox="0 0 600 24" preserveAspectRatio="none" focusable="false"><path d="M0 12q25-12 50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0" fill="none" stroke="#38c6d6" stroke-width="3" stroke-linecap="round"/></svg></div>'
+SUN='<svg class="deco-sun" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><g stroke="#ffb703" stroke-width="5" stroke-linecap="round"><path d="M50 4v12M50 84v12M4 50h12M84 50h12M17 17l9 9M74 74l9 9M17 83l9-9M74 26l9-9"/></g><circle cx="50" cy="50" r="22" fill="#ffd23f"/></svg>'
+PALM='<svg class="deco-palm" viewBox="0 0 120 160" aria-hidden="true" focusable="false"><path d="M62 60c-4 30-2 62 6 96" stroke="#7a5230" stroke-width="7" fill="none" stroke-linecap="round"/><g fill="#2a9d6f"><path d="M62 58c-14-22-38-26-56-16 22-2 38 6 56 16z"/><path d="M62 58c12-22 36-28 54-18-22-2-38 6-54 18z"/><path d="M62 58c-24-6-44 6-50 26 14-14 30-20 50-26z"/><path d="M62 58c22-8 44 2 52 22-16-12-32-18-52-22z"/><path d="M62 58c-2-20 8-38 24-46-10 16-16 30-24 46z"/></g></svg>'
+CSS="""*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;font-family:Nunito,'Trebuchet MS',system-ui,sans-serif;font-size:16.5px;line-height:1.6;color:#16324a;background:#fdf6ea}
+a{color:#08708f;font-weight:700;text-decoration-thickness:2px;text-underline-offset:3px}a:hover{color:#c2410c}
+:focus-visible{outline:3px solid #ff8a5b;outline-offset:2px;border-radius:6px}
+h1,h2,h3{color:#073b52;line-height:1.2;font-weight:900}h1{font-size:clamp(30px,5vw,50px);margin:.2em 0 .35em;letter-spacing:-.5px}
+h2{font-size:26px;margin:.2em 0 .6em}h3{font-size:20px;margin:.2em 0 .7em}
+.card h2,.card h3{padding-bottom:12px;background:repeating-linear-gradient(90deg,#ff7a59 0 14px,#fff 14px 18px,#16b6c8 18px 32px,#fff 32px 36px) left bottom/100% 4px no-repeat}
+.skip{position:absolute;left:-999px}.skip:focus{left:12px;top:12px;background:#fff;padding:8px 14px;z-index:9;border-radius:999px}
+/* header */
+.site-header{background:#fff;position:relative;box-shadow:0 2px 14px rgba(7,59,82,.08)}
+.site-header::after{content:"";display:block;height:8px;background:repeating-linear-gradient(90deg,#0a86a8 0 16px,#5fe0ec 16px 18px,#e6fbfd 18px 34px,#5fe0ec 34px 36px)}
+.hwrap{max-width:1120px;margin:auto;padding:12px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#073b52;margin-right:auto}
+.brand .wm{display:flex;flex-direction:column;line-height:1.02}.brand .wm b{font-size:21px;font-weight:900;color:#073b52}.brand .wm span{font-size:15px;font-weight:800;color:#0a7ea4;letter-spacing:.5px}
+nav.pills{display:flex;gap:6px;flex-wrap:wrap}
+nav.pills a{display:inline-block;padding:7px 14px;border-radius:999px;background:#e6f7f9;color:#0b4f66;text-decoration:none;font-size:14.5px;font-weight:800;white-space:nowrap;transition:transform .15s,background .15s}
+nav.pills a:hover{background:#c9f0f4;transform:translateY(-1px);color:#073b52}nav.pills a.on{background:#08708f;color:#fff}
+nav.pills a.cta,.btn{background:#ffd23f;color:#3d2c00;box-shadow:0 3px 0 #e0a800}nav.pills a.cta:hover,.btn:hover{background:#ffdf6b;color:#3d2c00}
+/* hero */
+.hero{position:relative;overflow:hidden;background:CAUSTIC 0 0/220px 165px,radial-gradient(circle at 15% 20%,rgba(255,255,255,.55),transparent 40%),linear-gradient(170deg,#c6f4f7 0%,#8ee3ec 55%,#5fd3e2 100%);animation:ripple 30s linear infinite}
+@keyframes ripple{to{background-position:220px 165px,0 0,0 0}}@media (prefers-reduced-motion:reduce){.hero{animation:none}}
+.hero .in{position:relative;z-index:2;max-width:1120px;margin:auto;padding:46px 18px 70px}.hero.small .in{padding:30px 18px 58px}.hero.small h1{font-size:clamp(28px,4.2vw,40px);max-width:820px}
+.hero h1{max-width:760px;color:#06324a}.hero p.lead{max-width:640px;font-size:19px;color:#0f3d52;font-weight:600;margin:0 0 22px}
+.hero .wave{position:absolute;left:0;right:0;bottom:-1px;height:60px;z-index:1}.hero .wave svg{width:100%;height:100%;display:block}
+.deco-sun{position:absolute;right:6%;top:22px;width:110px;z-index:1;opacity:.95}.deco-palm{position:absolute;right:calc(6% + 70px);bottom:24px;width:120px;z-index:1;opacity:.9}.hero.small .deco-sun{width:80px;top:16px}.hero.small .deco-palm{display:none}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn,.btn2{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:999px;font-weight:900;text-decoration:none;font-size:16.5px}
+.btn2{background:#fff;color:#08708f;box-shadow:0 3px 0 #9fdde6}.btn2:hover{color:#073b52;background:#f2fdff}
+main{max-width:1120px;margin:auto;padding:8px 18px 30px}
+/* cards */
+.card{position:relative;background:#fff;border-radius:24px;padding:24px 24px 22px;margin:22px 0;box-shadow:0 10px 30px rgba(7,59,82,.09),0 2px 6px rgba(7,59,82,.05);overflow:hidden}
+.card::before{content:"";position:absolute;left:0;right:0;top:0;height:7px;background:repeating-linear-gradient(90deg,#16b6c8 0 18px,#e6fbfd 18px 20px,#7fe1ea 20px 38px,#e6fbfd 38px 40px)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:18px}.grid>.card{margin:0}
+.stat{display:flex;flex-direction:column;align-items:flex-start;gap:6px;transition:transform .15s}.stat:hover{transform:translateY(-3px)}
+.stat .ico{width:50px;height:50px;border-radius:16px;display:grid;place-items:center;font-size:26px;background:#e6f7f9}
+.stat:nth-child(6n+2) .ico{background:#fff4cc}.stat:nth-child(6n+3) .ico{background:#ffe6dc}.stat:nth-child(6n+4) .ico{background:#e4f7ec}.stat:nth-child(6n+5) .ico{background:#efe6fb}
+.stat:nth-child(6n+2)::before{background:repeating-linear-gradient(90deg,#ffc83d 0 18px,#fff8e1 18px 20px)}.stat:nth-child(6n+3)::before{background:repeating-linear-gradient(90deg,#ff8a5b 0 18px,#fff1ea 18px 20px)}
+.stat .muted{font-weight:700;color:#3f5a6c}
+.big{font-size:34px;font-weight:900;color:#08708f;line-height:1.1;letter-spacing:-.5px}
+.stat-row{margin:6px 0 4px}.stat-row .card{padding-top:22px}
+.muted{color:#4b6475;font-size:14px}
+.tag{display:inline-block;font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;vertical-align:middle;border:1.5px solid transparent;line-height:1.4}
+.official{background:#ddf6e7;color:#14532d;border-color:#9fdcb8}.third{background:#fff1c2;color:#5c4300;border-color:#f2d36b}.est{background:#e3eef7;color:#27425a;border-color:#b6cde1}
+.pending{background:#ffe3d6;color:#8a2c0d;border-color:#ffb899}.builder{background:#efe4fb;color:#4c1d95;border-color:#cdb4f0}
+.disc{background:#fff6ec;border:2px dashed #ffc9a3;box-shadow:none}.disc::before{display:none}
+/* tables */
+.tw{overflow-x:auto;border-radius:18px;border:2px solid #cdeff3;margin:6px 0 12px;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;min-width:520px}
+th{background:#0a7ea4;color:#fff;font-weight:800;font-size:14px;padding:11px 12px;text-align:left}th .tag{margin-left:4px}
+td{padding:10px 12px;font-size:15px;border-top:1px solid #e3f4f6}tr:nth-child(even) td{background:#f0fbfc}tr:hover td{background:#fff8e1}
+th a{color:#fff}
+/* forms */
+input,select{font:inherit;padding:11px 14px;border:2px solid #bfe8ee;border-radius:14px;margin:4px 6px 10px 0;background:#fff;color:#16324a}input:focus,select:focus{border-color:#16b6c8;outline:none;box-shadow:0 0 0 4px rgba(22,182,200,.2)}
+button{font:inherit;font-weight:900;background:#08708f;color:#fff;border:0;padding:11px 22px;border-radius:999px;cursor:pointer;box-shadow:0 3px 0 #05506a}button:hover{background:#0a86a8}button:disabled{background:#b9c9d2;box-shadow:none;cursor:not-allowed;color:#32485a}
+#res ul{background:#f0fbfc;border-radius:16px;padding:14px 14px 14px 34px}
+.chips{display:flex;flex-wrap:wrap;gap:10px}.chips a{padding:10px 18px;border-radius:999px;background:#e6f7f9;color:#0b4f66;text-decoration:none;font-weight:800;border:2px solid #bfe8ee}.chips a:hover{background:#fff4cc;border-color:#ffd23f}
+.wave-div{height:24px;margin:6px auto;max-width:360px;opacity:.85}.wave-div svg{width:100%;height:100%;display:block}
+ul li{margin:4px 0}
+/* footer */
+footer{position:relative;margin-top:30px;background:linear-gradient(180deg,#0a86a8,#075f7c);color:#e8fbff;text-align:center;font-size:13.5px;padding:44px 18px 28px}
+footer::before{content:"";position:absolute;left:0;right:0;top:-1px;height:24px;background:CAUSTICFOOT}
+footer .fbrand{display:flex;justify-content:center;align-items:center;gap:8px;font-weight:900;font-size:16px;color:#fff;margin-bottom:8px}footer a{color:#fff}
+footer .tag{margin:2px 0}
+@media (max-width:700px){body{font-size:16px}.hwrap{padding:10px 14px}nav.pills{flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:4px;scrollbar-width:none}nav.pills::-webkit-scrollbar{display:none}
+.hero .in{padding:30px 16px 60px}.deco-palm{display:none}.deco-sun{width:64px;right:12px;top:10px;opacity:.7}.hero h1{padding-right:40px}.hero p.lead{font-size:17px}
+.card{border-radius:20px;padding:20px 16px 18px}.big{font-size:30px}main{padding:4px 14px 24px}input,select{width:100%}}"""
+FOOTWAVE="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 24' preserveAspectRatio='none'%3E%3Cpath d='M0 0h1440v8c-120 14-240 14-360 4S840-2 720 8 480 22 360 14 120 0 0 10z' fill='%23fdf6ea'/%3E%3C/svg%3E\") 0 0/100% 100% no-repeat"
+CSS=CSS.replace("CAUSTICFOOT",FOOTWAVE).replace("CAUSTIC",CAUSTIC)
 NAV=[("index.html","Home"),("counties.html","Counties"),("the-villages.html","The Villages"),("pool-types.html","Pool types"),("enclosure-styles.html","Enclosure styles"),("submit.html","Share a quote"),("methodology.html","Methodology")]
 DISC="Not legal, financial, or contracting advice. Figures are labeled by source; confirm pricing with licensed contractors."
-def page(fn,title,body,extra=""):
-    nav="".join(f'<a href="{h}">{t}</a>' for h,t in NAV)
+HEAD_LINKS='''<link rel="icon" href="favicon.ico" sizes="32x32"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="theme-color" content="#0a86a8">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&amp;display=swap" rel="stylesheet">'''
+def hero_html(inner,small=False):
+    return f'<section class="hero{" small" if small else ""}">{SUN}{"" if small else PALM}<div class="in">{inner}</div><div class="wave">{WAVE}</div></section>'
+def page(fn,title,body,extra="",hero=None):
+    cur="counties.html" if fn.startswith("county-") else fn
+    nav="".join(f'<a href="{h}"'+(' class="cta"' if h=="submit.html" and cur!=h else '')+(' class="on" aria-current="page"' if h==cur else '')+f'>{t}</a>' for h,t in NAV)
+    if hero is None:
+        m=re.match(r'\s*(<h1>.*?</h1>)',body,re.S)
+        if m: hero=hero_html(m.group(1),small=True); body=body[m.end():]
+        else: hero=""
+    body=body.replace("<table>",'<div class="tw"><table>').replace("</table>","</table></div>")
     open(os.path.join(OUT,fn),'w').write(f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{E(title)} | Florida Pool Cost Index</title><link rel="stylesheet" href="style.css"></head><body>
-<header><a class="brand" href="index.html">Florida Pool Cost Index</a>{nav}</header><main>{body}</main>
-<footer>{E(DISC)}<br>Not a quote or bid. Data labeled by source: <span class="tag official">Official permit data</span> <span class="tag third">Third-party aggregate</span> <span class="tag est">Published estimate</span> <span class="tag pending">Pending</span> · Updated {D['updated']}</footer>{extra}</body></html>""")
+<title>{E(title)} | Florida Pool Cost Index</title>{HEAD_LINKS}<link rel="stylesheet" href="style.css"></head><body>
+<a class="skip" href="#main">Skip to content</a><header class="site-header"><div class="hwrap"><a class="brand" href="index.html" aria-label="Florida Pool Cost Index, home">{mark()}<span class="wm"><b>Florida Pool</b><span>Cost Index</span></span></a><nav class="pills" aria-label="Main">{nav}</nav></div></header>{hero}<main id="main">{body}</main>
+<footer><div class="fbrand">{mark(28,"fmark")}Florida Pool Cost Index</div>{E(DISC)}<br>Not a quote or bid. Data labeled by source: <span class="tag official">Official permit data</span> <span class="tag third">Third-party aggregate</span> <span class="tag est">Published estimate</span> <span class="tag pending">Pending</span> · Updated {D['updated']}</footer>{extra}</body></html>""")
 open(os.path.join(OUT,'style.css'),'w').write(CSS)
+write_brand_assets()
 LP=D['lake_permits']; P26=LP['periods']['2026 (Jan 1 - Sep 30)']; P25=LP['periods']['2025 (full year)']
 def est_table(keys):
     rows=""
@@ -75,7 +168,7 @@ def bd_block(slug=None,title_extra=""):
     return f'<div class="card"><h3>Builder-contributed quotes (anonymized){title_extra} <span class="tag builder">Builder-contributed</span></h3>{body}</div>'
 
 # HOME
-check="""<div class="card"><h2>Is my quote fair?</h2><p>Compare your quote with published Florida ranges, builder-contributed quotes (anonymized), and official Lake County enclosure permit values.</p>
+check="""<div class="card" id="check"><h2><span aria-hidden="true">🔍 </span>Is my quote fair?</h2><p>Compare your quote with published Florida ranges, builder-contributed quotes (anonymized), and official Lake County enclosure permit values.</p>
 <select id="kind"><option value="gunite">Gunite (concrete) pool</option><option value="fiberglass">Fiberglass pool</option><option value="pool_spa">Pool + spa</option><option value="enclosure">Screen enclosure only</option></select>
 <select id="county"><option value="">County (optional)</option>COUNTYOPTS</select>
 <input id="price" type="number" placeholder="Quote total $"><button onclick="chk()">Check</button><div id="res"></div>
@@ -97,21 +190,33 @@ document.getElementById('res').innerHTML=out?'<ul>'+out+'</ul>':'<p>No published
 copts="".join(f'<option value="{c["slug"]}">{E(c["name"])}</option>' for c in D['counties'])
 check=check.replace("COUNTYOPTS",copts).replace("ESTJSON",json.dumps([{"name":e["name"],"url":e["url"],"items":e["items"]} for e in D['estimators']])).replace("LAKEJSON",json.dumps(P26['enclosure'])).replace("ORLJSON",json.dumps(OP['enclosure'])).replace("BCJSON",json.dumps(dict([("all",bcalc(None))]+[(c['slug'],bcalc(c['slug'])) for c in D['counties']])))
 BH=bcalc(None)
-home=f"""<h1>What Florida Pools and Screen Enclosures Really Cost</h1><p>Real quotes shared by Florida homeowners, official permit data, and published estimates, each clearly labeled. Starting in Central Florida.</p>
-<div class="grid"><div class="card"><div class="muted">Lake County screen enclosures, median declared permit value (Jan–Sep 2026)</div><div class="big">{money(P26['enclosure']['median'])}</div><span class="tag official">Official permit data</span> <span class="muted">{P26['enclosure']['count']} permits</span></div>
-<div class="card"><div class="muted">Florida fiberglass pool, published range</div><div class="big">$45k–$110k</div><span class="tag est">Published estimate</span> <span class="muted">EstimateFlorida</span></div>
-<div class="card"><div class="muted">Florida gunite pool, published range</div><div class="big">$55k–$150k</div><span class="tag est">Published estimate</span> <span class="muted">EstimateFlorida</span></div>
-<div class="card"><div class="muted">New gunite pool total project, builder-contributed quotes (Apr–Oct 2026)</div><div class="big">{money(BH['total_all']['median'])} median</div><span class="tag builder">Builder-contributed</span> <span class="muted">{BH['total_all']['n']} quotes, {money(BH['total_all']['min'])}–{money(BH['total_all']['max'])}; one builder, mixed statuses; permits included</span></div>
-<div class="card"><div class="muted">Dome screen enclosure line item, builder-contributed quotes</div><div class="big">{money(BH['encl_dome']['median'])} median</div><span class="tag builder">Builder-contributed</span> <span class="muted">{BH['encl_dome']['n']} quotes, {money(BH['encl_dome']['min'])}–{money(BH['encl_dome']['max'])}; permits included</span></div>
-<div class="card"><div class="muted">Homeowner-submitted quotes</div><div class="big">0</div><span class="tag pending">Pending</span> <a href="submit.html">Share yours</a></div></div>
-{check}<div class="card"><h2>Counties</h2><div class="grid">{''.join(f'<a href="county-{c["slug"]}.html">{E(c["name"])}</a>' for c in D['counties'])}<a href="the-villages.html">The Villages</a></div></div>
-<div class="card"><h3>Newsletter</h3><p>Monthly Florida Pool &amp; Enclosure Cost Index. <i>(Placeholder: signup not connected yet.)</i></p><input type="email" placeholder="you@example.com" disabled><button disabled>Subscribe</button></div>
+HERO=hero_html('<h1>What Florida Pools and Screen Enclosures Really Cost</h1><p class="lead">Real quotes shared by Florida homeowners, official permit data, and published estimates, each clearly labeled. Starting in Central Florida.</p><div class="btns"><a class="btn" href="#check"><span aria-hidden="true">🏊</span> Check my quote</a><a class="btn2" href="submit.html"><span aria-hidden="true">✍️</span> Share a quote</a></div>')
+def ico(e): return f'<span class="ico" aria-hidden="true">{e}</span>'
+home=f"""<div class="grid"><div class="card stat">{ico("🏡")}<div class="muted">Lake County screen enclosures, median declared permit value (Jan–Sep 2026)</div><div class="big">{money(P26['enclosure']['median'])}</div><span class="tag official">Official permit data</span> <span class="muted">{P26['enclosure']['count']} permits</span></div>
+<div class="card stat">{ico("🌊")}<div class="muted">Florida fiberglass pool, published range</div><div class="big">$45k–$110k</div><span class="tag est">Published estimate</span> <span class="muted">EstimateFlorida</span></div>
+<div class="card stat">{ico("💧")}<div class="muted">Florida gunite pool, published range</div><div class="big">$55k–$150k</div><span class="tag est">Published estimate</span> <span class="muted">EstimateFlorida</span></div>
+<div class="card stat">{ico("🏊")}<div class="muted">New gunite pool total project, builder-contributed quotes (Apr–Oct 2026)</div><div class="big">{money(BH['total_all']['median'])} median</div><span class="tag builder">Builder-contributed</span> <span class="muted">{BH['total_all']['n']} quotes, {money(BH['total_all']['min'])}–{money(BH['total_all']['max'])}; one builder, mixed statuses; permits included</span></div>
+<div class="card stat">{ico("⛱️")}<div class="muted">Dome screen enclosure line item, builder-contributed quotes</div><div class="big">{money(BH['encl_dome']['median'])} median</div><span class="tag builder">Builder-contributed</span> <span class="muted">{BH['encl_dome']['n']} quotes, {money(BH['encl_dome']['min'])}–{money(BH['encl_dome']['max'])}; permits included</span></div>
+<div class="card stat">{ico("✍️")}<div class="muted">Homeowner-submitted quotes</div><div class="big">0</div><span class="tag pending">Pending</span> <a href="submit.html">Share yours</a></div></div>
+{DIVIDER}{check}{DIVIDER}<div class="card"><h2><span aria-hidden="true">🌴 </span>Counties</h2><div class="chips">{''.join(f'<a href="county-{c["slug"]}.html">{E(c["name"])}</a>' for c in D['counties'])}<a href="the-villages.html">The Villages</a></div></div>
+<div class="card"><h3><span aria-hidden="true">☀️ </span>Newsletter</h3><p>Monthly Florida Pool &amp; Enclosure Cost Index. <i>(Placeholder: signup not connected yet.)</i></p><input type="email" placeholder="you@example.com" disabled><button disabled>Subscribe</button></div>
 <div class="card disc">{E(DISC)} <a href="methodology.html">Read the methodology</a>.</div>"""
-page("index.html","Home",home)
+page("index.html","Home",home,hero=HERO)
 # COUNTIES
+def county_stats(s):
+    cards=[]
+    if s=='lake': cards.append(("🏡","Screen enclosures, median declared permit value (Jan–Sep 2026)",money(P26['enclosure']['median']),'<span class="tag official">Official permit data</span>',f"{P26['enclosure']['count']} permits"))
+    if s=='orange': cards.append(("🏡",f"City of Orlando screen enclosures, median declared permit value, {E(OP['period'])}",money(OP['enclosure']['median']),'<span class="tag official">Official permit data</span>',f"{OP['enclosure']['count']} permits"))
+    st=bcalc(s)
+    for k,emo,lab in [("total_all","🏊","New gunite pool total project, builder-contributed median"),("pool_base","💧","Pool base line item, builder-contributed median"),("encl_dome","⛱️","Dome screen enclosure line item, builder-contributed median")]:
+        v=st.get(k)
+        if v and v['median'] is not None: cards.append((emo,lab,money(v['median']),'<span class="tag builder">Builder-contributed</span>',f"{v['n']} quotes, {money(v['min'])}–{money(v['max'])}; permits included"))
+    if not cards: return ""
+    return '<div class="grid stat-row">'+"".join(f'<div class="card stat">{ico(e)}<div class="muted">{l}</div><div class="big">{v}</div>{t} <span class="muted">{n}</span></div>' for e,l,v,t,n in cards)+'</div>'
 page("counties.html","Counties","<h1>Counties</h1>"+"".join(f'<div class="card"><a href="county-{c["slug"]}.html"><b>{E(c["name"])}</b></a><br><span class="muted">Permit data: {E(c["status"])}</span></div>' for c in D['counties']))
 for c in D['counties']:
     s=c['slug']; body=f"<h1>{E(c['name'])} pool &amp; screen enclosure costs</h1>"
+    body+=county_stats(s)
     if s=='lake': body+=lake_block()+'<p>Includes the Lake County side of <a href="the-villages.html">The Villages</a> only where permits were issued by the county.</p>'
     if s=='orange': body+=orl_block()
     if s!='lake': body+=f'<div class="card"><h3>Official permit data{" (unincorporated Orange County)" if s=="orange" else ""} <span class="tag pending">Pending</span></h3><p>{E(c["status"])}.</p>'+(f'<p class="muted">Portal: <a href="{c["portal"]}" target="_blank">{c["portal"]}</a></p>' if c['portal'] else '')+'</div>'
