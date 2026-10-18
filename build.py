@@ -94,6 +94,17 @@ footer .tag{margin:2px 0}
 .card{border-radius:20px;padding:20px 16px 18px}.big{font-size:30px}main{padding:4px 14px 24px}input,select{width:100%}}"""
 FOOTWAVE="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 24' preserveAspectRatio='none'%3E%3Cpath d='M0 0h1440v8c-120 14-240 14-360 4S840-2 720 8 480 22 360 14 120 0 0 10z' fill='%23fdf6ea'/%3E%3C/svg%3E\") 0 0/100% 100% no-repeat"
 CSS=CSS.replace("CAUSTICFOOT",FOOTWAVE).replace("CAUSTIC",CAUSTIC)
+
+CSS+=""".upl{text-align:center;background:linear-gradient(180deg,#e9fbfd,#fff 70%);border:3px dashed #7fd8e4;box-shadow:0 12px 34px rgba(10,134,168,.14)}
+.upl-in{max-width:640px;margin:auto;padding:8px 0}
+.upl-ico{width:78px;height:78px;margin:6px auto 10px;border-radius:24px;display:grid;place-items:center;font-size:40px;background:#fff4cc;box-shadow:0 4px 0 #ffd23f}
+.card.upl h2{background:none;padding-bottom:0;font-size:clamp(24px,3.6vw,32px)}
+.upl-lead{font-size:18px;font-weight:600;color:#0f3d52;margin:0 0 18px}
+.upl-btn{font-size:19px;padding:15px 30px}.upl-sub{margin:10px 0 14px}
+.upl-types{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:0 0 16px}.upl-types span{background:#e6f7f9;color:#0b4f66;border:2px solid #bfe8ee;border-radius:999px;padding:4px 14px;font-weight:800;font-size:14px}
+.upl-priv{background:#ddf6e7;border:1.5px solid #9fdcb8;color:#14532d;border-radius:16px;padding:12px 16px;margin:0;font-size:15px}
+.grid2{grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))}ul.ticks{list-style:none;padding:0;margin:0}ul.ticks li{position:relative;padding-left:30px;margin:8px 0}ul.ticks li::before{content:"✓";position:absolute;left:0;top:1px;width:22px;height:22px;border-radius:50%;background:#16b6c8;color:#fff;font-weight:900;font-size:13px;display:grid;place-items:center}
+@media (max-width:700px){.upl-btn{width:100%;justify-content:center}.upl-lead{font-size:16.5px}}"""
 NAV=[("index.html","Home"),("counties.html","Counties"),("the-villages.html","The Villages"),("pool-types.html","Pool types"),("enclosure-styles.html","Enclosure styles"),("submit.html","Share a quote"),("methodology.html","Methodology")]
 DISC="Not legal, financial, or contracting advice. Figures are labeled by source; confirm pricing with licensed contractors."
 HEAD_LINKS='''<link rel="icon" href="favicon.ico" sizes="32x32"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="theme-color" content="#0a86a8">
@@ -261,9 +272,27 @@ def _cell(s): return ("<span class='tag builder'>Builder-contributed</span> "+(f
 es=es.replace("MANSARDCELL",_cell(_ba['encl_mansard'])).replace("DOMECELL",_cell(_ba['encl_dome'])).replace("<p class=\"muted\">Style-level prices will come from submitted quotes.</p>","<p class=\"muted\">Builder-contributed figures are screen enclosure line items from one builder's quotes (small sample, mixed statuses); no document states a screen type. More style-level prices will come from submitted quotes.</p>")
 page("enclosure-styles.html","Enclosure styles",es)
 # SUBMIT
-sub="""<h1>Share a quote</h1><div class="card"><p><b>Placeholder.</b> Intake will be a Google Form (not created yet). Sharing a quote unlocks detailed breakdowns by county, pool type, enclosure style and screen type.</p>
-<p>What we'll ask: county &amp; community, quote month, pool type/size/features, deck, enclosure style/size/screen type, total and line-item prices, what's included, <b>permits included? (yes / no / unsure)</b>, status (quoted/signed/completed). Builder name optional. Optional quote document upload for "verified" status. Documents stay private and are deleted after review.</p>
-<button disabled>Open the form (coming soon)</button></div>"""
+UPLOAD_URL="https://www.dropbox.com/request/c7250kquamtlmkfmr8h9"  # Dropbox file request -> /Florida Pool Cost Index/Quote Uploads (private to the owner)
+sub=f"""<h1>Share a quote</h1>
+<section class="card upl" aria-labelledby="upl-h"><div class="upl-in">
+<div class="upl-ico" aria-hidden="true">📄</div>
+<h2 id="upl-h">Upload your quote files</h2>
+<p class="upl-lead">Got a pool or screen enclosure quote? Snap a photo or grab the PDF and drop it in. It takes about a minute, and you don't need an account.</p>
+<a class="btn upl-btn" href="{UPLOAD_URL}" target="_blank" rel="noopener"><span aria-hidden="true">⬆️</span> Upload your quote files</a>
+<p class="muted upl-sub">Opens a secure Dropbox upload page in a new tab.</p>
+<div class="upl-types" aria-label="Accepted file types"><span>PDF</span><span>JPG</span><span>PNG</span><span>HEIC (iPhone photos)</span></div>
+<p class="upl-priv"><span aria-hidden="true">🔒</span> <b>Your files go privately to the site owner.</b> They're never published. We only add anonymized totals to the county averages.</p>
+</div></section>
+<div class="grid grid2">
+<div class="card"><h3>What to upload</h3><ul class="ticks">
+<li>The full quote or proposal (a PDF, or clear photos of every page)</li>
+<li>Pool quotes, screen enclosure quotes, or both</li>
+<li>Quotes you signed, are still thinking about, or turned down</li>
+<li>Feel free to <b>black out names, addresses and phone numbers</b> first</li></ul></div>
+<div class="card"><h3>Helpful details</h3><p>If these aren't already on the quote, you can put them in the file name, or upload a photo of a quick handwritten or typed note:</p><ul class="ticks">
+<li>County and community</li><li>Month of the quote</li><li><b>Permits included? (yes / no / unsure)</b></li><li>Status: quoted, signed or completed</li></ul></div>
+</div>
+<div class="card"><h3>What happens next</h3><p>We review each quote by hand and take out any personal info. It counts toward county figures once there are enough quotes to share without identifying anyone. Your shared quotes unlock detailed breakdowns by county, pool type, enclosure style and screen type. Builder names stay private.</p></div>"""
 page("submit.html","Share a quote",sub)
 # METHODOLOGY
 src="".join(f"<li><a href='{e['url']}' target='_blank'>{E(e['name'])}</a>{(' – '+E(e['note'])) if e.get('note') else ''}</li>" for e in D['estimators'])
