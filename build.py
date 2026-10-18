@@ -105,14 +105,14 @@ CSS+=""".upl{text-align:center;background:linear-gradient(180deg,#e9fbfd,#fff 70
 .upl-priv{background:#ddf6e7;border:1.5px solid #9fdcb8;color:#14532d;border-radius:16px;padding:12px 16px;margin:0;font-size:15px}
 .grid2{grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))}ul.ticks{list-style:none;padding:0;margin:0}ul.ticks li{position:relative;padding-left:30px;margin:8px 0}ul.ticks li::before{content:"✓";position:absolute;left:0;top:1px;width:22px;height:22px;border-radius:50%;background:#16b6c8;color:#fff;font-weight:900;font-size:13px;display:grid;place-items:center}
 @media (max-width:700px){.upl-btn{width:100%;justify-content:center}.upl-lead{font-size:16.5px}}"""
-NAV=[("index.html","Home"),("counties.html","Counties"),("the-villages.html","The Villages"),("pool-types.html","Pool types"),("enclosure-styles.html","Enclosure styles"),("submit.html","Share a quote"),("methodology.html","Methodology")]
+NAV=[("submit.html","Share a Quote"),("index.html","Home"),("counties.html","Pick Your County"),("pool-types.html","Swimming Pools"),("enclosure-styles.html","Pool Enclosures"),("methodology.html","Methodology")]
 DISC="Not legal, financial, or contracting advice. Figures are labeled by source; confirm pricing with licensed contractors."
 HEAD_LINKS='''<link rel="icon" href="favicon.ico" sizes="32x32"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="apple-touch-icon.png"><meta name="theme-color" content="#0a86a8">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&amp;display=swap" rel="stylesheet">'''
 def hero_html(inner,small=False):
     return f'<section class="hero{" small" if small else ""}">{SUN}{"" if small else PALM}<div class="in">{inner}</div><div class="wave">{WAVE}</div></section>'
 def page(fn,title,body,extra="",hero=None):
-    cur="counties.html" if fn.startswith("county-") else fn
+    cur="counties.html" if (fn.startswith("county-") or fn=="the-villages.html") else fn
     nav="".join(f'<a href="{h}"'+(' class="cta"' if h=="submit.html" and cur!=h else '')+(' class="on" aria-current="page"' if h==cur else '')+f'>{t}</a>' for h,t in NAV)
     if hero is None:
         m=re.match(r'\s*(<h1>.*?</h1>)',body,re.S)
@@ -142,6 +142,7 @@ def lake_block():
 <table><tr><th>Period</th><th>Permit type</th><th>Permits</th><th>Median declared value</th><th>Middle half (25th–75th pct)</th></tr>{r}</table>
 <p class="muted">Source: <a href="{LP['url']}" target="_blank">{E(LP['source'])}</a>, pulled {LP['pulled']}. Coverage: {E(LP['coverage'])} Values are what was declared on the permit, not contract prices. Only county-level aggregates are shown; no addresses or personal names are stored or published.</p></div>"""
 OP=D.get('orlando_permits')
+OCP=D['orange_county_permits']
 def orl_block():
     en=OP['enclosure'];po=OP['pool']
     r=f"<tr><td>Screen enclosure</td><td>{en['count']}</td><td>{money(en['median'])}</td><td>{money(en['p25'])} – {money(en['p75'])}</td><td>{money(en['min'])} – {money(en['max'])}</td></tr>"
@@ -179,36 +180,63 @@ def bd_block(slug=None,title_extra=""):
     return f'<div class="card"><h3>Builder-contributed quotes (anonymized){title_extra} <span class="tag builder">Builder-contributed</span></h3>{body}</div>'
 
 # HOME
-check="""<div class="card" id="check"><h2><span aria-hidden="true">🔍 </span>Is my quote fair?</h2><p>Compare your quote with published Florida ranges, builder-contributed quotes (anonymized), and official Lake County enclosure permit values.</p>
-<select id="kind"><option value="gunite">Gunite (concrete) pool</option><option value="fiberglass">Fiberglass pool</option><option value="pool_spa">Pool + spa</option><option value="enclosure">Screen enclosure only</option></select>
-<select id="county"><option value="">County (optional)</option>COUNTYOPTS</select>
-<input id="price" type="number" placeholder="Quote total $"><button onclick="chk()">Check</button><div id="res"></div>
-<p class="muted">Published ranges are estimates, not bids. Builder-contributed figures are one builder's quotes (small sample, mixed statuses); medians are shown only with 3+ quotes. Builder-contributed pool and screen enclosure prices include permitting costs; compare quotes that include permits. Once enough homeowner quotes are shared, this uses submitted quotes by county.</p></div>
-<script>const EST=ESTJSON;const LAKE=LAKEJSON;const BCQ=BCJSON;
+check="""<div class="card" id="check"><h2><span aria-hidden="true">🔍 </span>Is my quote fair?</h2><p>Tell us what your quote covers, then compare it with published Florida ranges, builder-contributed quotes (anonymized), and official enclosure permit values.</p>
+<div class="qchk"><div class="qrow">
+<div class="qfield"><label for="ptype">Pool type</label><select id="ptype"><option value="gunite">Gunite</option><option value="fiberglass">Fiberglass</option></select></div>
+<div class="qfield"><label for="spa">Spa</label><select id="spa"><option value="no">No</option><option value="yes">Yes</option></select></div>
+<div class="qfield"><label for="encl">Screen enclosure</label><select id="encl"><option value="no">No</option><option value="yes">Yes</option></select></div>
+</div><div class="qrow">
+<div class="qfield"><label for="county">County (optional)</label><select id="county"><option value="">Any county</option>COUNTYOPTS</select></div>
+<div class="qfield"><label for="price">Quote total</label><input id="price" type="number" inputmode="numeric" min="0" placeholder="$"></div>
+<div class="qfield qbtn"><button onclick="chk()">Check</button></div>
+</div></div><div id="res"></div>
+<p class="muted">Published ranges are estimates, not bids. Combined figures add component ranges together and are labeled as estimates. Builder-contributed figures are one builder's quotes (small sample, mixed statuses); medians are shown only with 3+ quotes. Builder-contributed pool and screen enclosure prices include permitting costs; compare quotes that include permits. Once enough homeowner quotes are shared, this uses submitted quotes by county.</p></div>
+<script>const EST=ESTJSON;const LAKE=LAKEJSON;const ORL=ORLJSON;const BCQ=BCJSON;
 function f(n){return '$'+Math.round(n).toLocaleString()}
-function chk(){const k=document.getElementById('kind').value,p=+document.getElementById('price').value,c=document.getElementById('county').value;let out='';
-if(!p){document.getElementById('res').innerHTML='<p>Enter your quote amount.</p>';return}
-EST.forEach(e=>{const r=e.items[k]||(k!=='enclosure'&&k!=='pool_spa'?e.items.inground_any:null);if(r){const pos=p<r[0]?'below':p>r[1]?'above':'within';out+=`<li><b>${pos}</b> ${f(r[0])}–${f(r[1])} (<a href="${e.url}" target="_blank">${e.name}</a>)</li>`}});
-if(k==='enclosure'&&c==='orange'){const O=ORLJSON;const pos=p<O.p25?'below the middle half':p>O.p75?'above the middle half':'within the middle half';out+=`<li><b>${pos}</b> of City of Orlando declared enclosure permit values ${f(O.p25)}–${f(O.p75)}, median ${f(O.median)} (official, ${O.count} permits, Jan–Sep 2026)</li>`}
-if(k==='enclosure'&&c==='lake'){const pos=p<LAKE.p25?'below the middle half':p>LAKE.p75?'above the middle half':'within the middle half';out+=`<li><b>${pos}</b> of Lake County declared enclosure permit values ${f(LAKE.p25)}–${f(LAKE.p75)}, median ${f(LAKE.median)} (official, Jan–Sep 2026)</li>`}
-const bk={gunite:'total_nospa',fiberglass:null,pool_spa:'total_spa',enclosure:'encl_dome'}[k];
-function bline(s,where,lab){if(!s)return '';const pos=p<s.min?'below':p>s.max?'above':'within';const med=s.median!==null?`, median ${f(s.median)}`:' (fewer than 3 quotes: range only)';return `<li><b>${pos}</b> the range of ${s.n} builder-contributed ${lab} quote${s.n>1?'s':''} ${where}: ${f(s.min)}–${f(s.max)}${med}</li>`}
-if(bk){const lab={total_nospa:'pool-only total',total_spa:'pool + spa total',encl_dome:'dome screen enclosure'}[bk];if(c&&BCQ[c])out+=bline(BCQ[c][bk],'in this county',lab);out+=bline(BCQ.all[bk],'across all counties',lab);
-if(k==='enclosure'&&BCQ.all.encl_mansard){const s=BCQ.all.encl_mansard;out+=`<li>Mansard screen enclosure: ${s.n} builder-contributed quote${s.n>1?'s':''}, ${f(s.min)}${s.n>1?'–'+f(s.max):''} (range only)</li>`}}
-if(k==='fiberglass')out+='<li class="muted">No builder-contributed fiberglass quotes yet (all contributed pools are gunite).</li>';
-if(bk)out+='<li class="muted"><b>Note:</b> builder-contributed pool and screen enclosure prices include permitting costs. Make sure the quote you are checking also includes permits (or add them) before comparing.</li>';
-document.getElementById('res').innerHTML=out?'<ul>'+out+'</ul>':'<p>No published range for this combination yet.</p>'}</script>"""
+function v(id){return document.getElementById(id).value}
+function chk(){const t=v('ptype'),spa=v('spa')==='yes',en=v('encl')==='yes',c=v('county'),p=+v('price');const R=document.getElementById('res');
+if(!p){R.innerHTML='<p>Enter your quote total.</p>';return}
+const cname=c?document.querySelector('#county option[value="'+c+'"]').textContent:'';
+const what=(t==='gunite'?'Gunite':'Fiberglass')+' pool'+(spa?' + spa':'')+(en?' + screen enclosure':'');
+let pub='',bld='',prm='',gaps='';
+function pos(r){return p<r[0]?'below':p>r[1]?'above':'within'}
+const SPA=BCQ.all.spa;
+EST.forEach(e=>{const I=e.items;let parts=[],r=null;
+ if(spa&&t==='gunite'&&I.pool_spa){r=I.pool_spa.slice();parts.push('pool + spa '+f(I.pool_spa[0])+'–'+f(I.pool_spa[1]))}
+ else{const b=I[t]||I.inground_any;if(!b)return;r=b.slice();parts.push((I[t]?t+' pool ':'inground pool (any type) ')+f(b[0])+'–'+f(b[1]));
+  if(spa){if(!SPA)return;r[0]+=SPA.min;r[1]+=SPA.max;parts.push('spa add-on '+f(SPA.min)+'–'+f(SPA.max)+' (range of '+SPA.n+' builder-contributed spa line items)')}}
+ if(en){if(!I.enclosure)return;r[0]+=I.enclosure[0];r[1]+=I.enclosure[1];parts.push('screen enclosure '+f(I.enclosure[0])+'–'+f(I.enclosure[1]))}
+ const comb=parts.length>1;
+ pub+=`<li><b>${pos(r)}</b> ${f(r[0])}–${f(r[1])}${comb?' <span class="tag est">Combined estimate</span> '+parts.join(' + '):''} (<a href="${e.url}" target="_blank">${e.name}</a>)</li>`});
+function bline(s,where,lab){if(!s)return '';const med=s.median!==null?`, median ${f(s.median)}`:' (fewer than 3 quotes: range only)';return `<li><b>${pos([s.min,s.max])}</b> the range of ${s.n} builder-contributed ${lab} quote${s.n>1?'s':''} ${where}: ${f(s.min)}–${f(s.max)}${med}</li>`}
+function cmp(s,where,lab){if(!s)return '';const med=s.median!==null?`median ${f(s.median)}, `:'';return `<li>${lab} ${where}: ${med}${f(s.min)}–${f(s.max)} (${s.n} quote${s.n>1?'s':''})</li>`}
+const C=c&&BCQ[c]?BCQ[c]:null;
+if(t==='fiberglass'){gaps+='<li>Not enough data yet for builder-contributed fiberglass quotes (all contributed pools are gunite).</li>'}
+else{const bk=spa?'total_spa':'total_nospa',lab=spa?'pool + spa total':'pool-only total';
+ if(!en){if(C&&C[bk])bld+=bline(C[bk],'in '+cname,lab);else if(c)gaps+=`<li>Not enough builder-contributed ${lab} quotes in ${cname} yet.</li>`;bld+=bline(BCQ.all[bk],'across all counties',lab)}
+ else{gaps+='<li>Not enough data yet for a builder-contributed total that includes a screen enclosure. Builder totals are not added to enclosure line items, since a total may already include one. If your quote is itemized, compare each line with the parts listed above.</li>';
+  bld+=cmp(C&&C[bk],'in '+cname,'Builder-contributed '+lab)+cmp(BCQ.all[bk],'across all counties','Builder-contributed '+lab)+cmp(C&&C.encl_dome,'in '+cname,'Dome screen enclosure line item')+cmp(BCQ.all.encl_dome,'across all counties','Dome screen enclosure line item')}}
+if(en){if(c==='orange')prm+=`<li>Enclosure part: City of Orlando declared enclosure permit values, middle half ${f(ORL.p25)}–${f(ORL.p75)}, median ${f(ORL.median)} (official, ${ORL.count} permits, Jan–Sep 2026)</li>`;
+ else if(c==='lake')prm+=`<li>Enclosure part: Lake County declared enclosure permit values, middle half ${f(LAKE.p25)}–${f(LAKE.p75)}, median ${f(LAKE.median)} (official, Jan–Sep 2026)</li>`;
+ else gaps+='<li>Official enclosure permit values are available for Orange (City of Orlando) and Lake counties. Choose one of those counties to see them.</li>'}
+if(!pub)gaps+='<li>No published range covers this combination yet.</li>';
+let out=`<p><b>Your quote:</b> ${f(p)} for ${what}${cname?' in '+cname:''}</p>`;
+if(pub)out+='<h4>Published ranges</h4><ul>'+pub+'</ul>';
+if(bld)out+='<h4>Builder-contributed quotes <span class="tag builder">Builder-contributed</span></h4><ul>'+bld+'</ul>';
+if(prm)out+='<h4>Official permit data <span class="tag official">Official permit data</span></h4><ul>'+prm+'</ul>';
+if(gaps)out+='<h4>Not enough data yet</h4><ul class="muted">'+gaps+'</ul>';
+if(bld)out+='<p class="muted"><b>Note:</b> builder-contributed pool and screen enclosure prices include permitting costs. Make sure the quote you are checking also includes permits (or add them) before comparing.</p>';
+R.innerHTML=out}</script>"""
 copts="".join(f'<option value="{c["slug"]}">{E(c["name"])}</option>' for c in D['counties'])
 check=check.replace("COUNTYOPTS",copts).replace("ESTJSON",json.dumps([{"name":e["name"],"url":e["url"],"items":e["items"]} for e in D['estimators']])).replace("LAKEJSON",json.dumps(P26['enclosure'])).replace("ORLJSON",json.dumps(OP['enclosure'])).replace("BCJSON",json.dumps(dict([("all",bcalc(None))]+[(c['slug'],bcalc(c['slug'])) for c in D['counties']])))
 BH=bcalc(None)
 HERO=hero_html('<h1>What Florida Pools and Screen Enclosures Really Cost</h1><p class="lead">Real quotes shared by Florida homeowners, official permit data, and published estimates, each clearly labeled. Starting in Central Florida.</p><div class="btns"><a class="btn" href="#check"><span aria-hidden="true">🏊</span> Check my quote</a><a class="btn2" href="submit.html"><span aria-hidden="true">✍️</span> Share a quote</a></div>')
 def ico(e): return f'<span class="ico" aria-hidden="true">{e}</span>'
-home=f"""<div class="grid"><div class="card stat">{ico("🏡")}<div class="muted">Lake County screen enclosures, median declared permit value (Jan–Sep 2026)</div><div class="big">{money(P26['enclosure']['median'])}</div><span class="tag official">Official permit data</span> <span class="muted">{P26['enclosure']['count']} permits</span></div>
-<div class="card stat">{ico("🌊")}<div class="muted">Florida fiberglass pool, published range</div><div class="big">$45k–$110k</div><span class="tag est">Published estimate</span> <span class="muted">EstimateFlorida</span></div>
+home=f"""<div class="grid"><div class="card stat">{ico("🏡")}<div class="muted">Orange County screen enclosures (Orlando and Winter Park permits only), median declared permit value (Jan–Sep 2026)</div><div class="big">{money(OCP['enclosure']['median'])}</div><span class="tag official">Official permit data</span> <span class="muted">{OCP['enclosure']['count']} permits; unincorporated county and other cities not yet included</span></div>
 <div class="card stat">{ico("💧")}<div class="muted">Florida gunite pool, published range</div><div class="big">$55k–$150k</div><span class="tag est">Published estimate</span> <span class="muted">EstimateFlorida</span></div>
+<div class="card stat">{ico("✍️")}<div class="muted">Homeowner-submitted quotes</div><div class="big">0</div><span class="tag pending">Pending</span> <a href="submit.html">Share yours</a></div>
 <div class="card stat">{ico("🏊")}<div class="muted">New gunite pool total project, builder-contributed quotes (Apr–Oct 2026)</div><div class="big">{money(BH['total_all']['median'])} median</div><span class="tag builder">Builder-contributed</span> <span class="muted">{BH['total_all']['n']} quotes, {money(BH['total_all']['min'])}–{money(BH['total_all']['max'])}; one builder, mixed statuses; permits included</span></div>
-<div class="card stat">{ico("⛱️")}<div class="muted">Dome screen enclosure line item, builder-contributed quotes</div><div class="big">{money(BH['encl_dome']['median'])} median</div><span class="tag builder">Builder-contributed</span> <span class="muted">{BH['encl_dome']['n']} quotes, {money(BH['encl_dome']['min'])}–{money(BH['encl_dome']['max'])}; permits included</span></div>
-<div class="card stat">{ico("✍️")}<div class="muted">Homeowner-submitted quotes</div><div class="big">0</div><span class="tag pending">Pending</span> <a href="submit.html">Share yours</a></div></div>
+<div class="card stat">{ico("⛱️")}<div class="muted">Dome screen enclosure line item, builder-contributed quotes</div><div class="big">{money(BH['encl_dome']['median'])} median</div><span class="tag builder">Builder-contributed</span> <span class="muted">{BH['encl_dome']['n']} quotes, {money(BH['encl_dome']['min'])}–{money(BH['encl_dome']['max'])}; permits included</span></div></div>
 {DIVIDER}{check}{DIVIDER}<div class="card"><h2><span aria-hidden="true">🌴 </span>Counties</h2><div class="chips">{''.join(f'<a href="county-{c["slug"]}.html">{E(c["name"])}</a>' for c in D['counties'])}<a href="the-villages.html">The Villages</a></div></div>
 <div class="card"><h3><span aria-hidden="true">☀️ </span>Newsletter</h3><p>Monthly Florida Pool &amp; Enclosure Cost Index. <i>(Placeholder: signup not connected yet.)</i></p><input type="email" placeholder="you@example.com" disabled><button disabled>Subscribe</button></div>
 <div class="card disc">{E(DISC)} <a href="methodology.html">Read the methodology</a>.</div>"""
@@ -224,7 +252,7 @@ def county_stats(s):
         if v and v['median'] is not None: cards.append((emo,lab,money(v['median']),'<span class="tag builder">Builder-contributed</span>',f"{v['n']} quotes, {money(v['min'])}–{money(v['max'])}; permits included"))
     if not cards: return ""
     return '<div class="grid stat-row">'+"".join(f'<div class="card stat">{ico(e)}<div class="muted">{l}</div><div class="big">{v}</div>{t} <span class="muted">{n}</span></div>' for e,l,v,t,n in cards)+'</div>'
-page("counties.html","Counties","<h1>Counties</h1>"+"".join(f'<div class="card"><a href="county-{c["slug"]}.html"><b>{E(c["name"])}</b></a><br><span class="muted">Permit data: {E(c["status"])}</span></div>' for c in D['counties']))
+page("counties.html","Pick Your County","<h1>Pick Your County</h1>"+"".join(f'<div class="card"><a href="county-{c["slug"]}.html"><b>{E(c["name"])}</b></a><br><span class="muted">Permit data: {E(c["status"])}</span></div>' for c in D['counties'])+'<div class="card"><a href="the-villages.html"><b>The Villages</b></a><br><span class="muted">Spans Sumter, Lake and Marion counties. Pick your Villages area on the next page.</span></div>')
 for c in D['counties']:
     s=c['slug']; body=f"<h1>{E(c['name'])} pool &amp; screen enclosure costs</h1>"
     body+=county_stats(s)
@@ -236,8 +264,21 @@ for c in D['counties']:
     body+='<div class="card"><h3>Get 3 quotes</h3><p><i>Placeholder: not live. Listed builders will be shown here; paid placements will be clearly marked.</i></p></div>'
     page(f"county-{s}.html",c['name'],body)
 # VILLAGES
+# Areas = the five Villages town squares (thevillages.com/entertainment/town-squares). Example village names appear in the same
+# town-square grouping on at least two independent area guides (villagesgolfguy.com/neighborhoods, jenniferrabysellsthevillages.com/villages,
+# thevillagesbuyersguide.com/villages.html). Groupings are informal (nearest town square), not the numbered districts.
+VIL_AREAS=[
+ ("spanish-springs","Spanish Springs","North of CR 466; the original section, including the Lake County (Lady Lake) portion",["Orange Blossom Gardens","Glenbrook","Santiago","Santo Domingo","El Cortez","Tierra Del Sol","Springdale","Country Club Hills"]),
+ ("lake-sumter-landing","Lake Sumter Landing","South of CR 466, Sumter County",["Hadley","Duval","Hemingway","Liberty Park","Lynnhaven","Mallory Square","Pennecamp","Sabal Chase","Bonnybrook"]),
+ ("brownwood","Brownwood","South of CR 466A, Sumter County",["Charlotte","Gilchrist","Pinellas","Sanibel","Osceola Hills"]),
+ ("sawgrass-grove","Sawgrass Grove","South of SR 44, Sumter County",["Bradford","Cason Hammock","Chitty Chatty","Citrus Grove","Lake Denham","Newell"]),
+ ("eastport","Eastport","South of SR 44, the newest section",["Long Prairie","Shady Brook","Moultrie Creek","Edenfield","Well Point"]),
+]
+vil_pick='<div class="card" id="areas"><h2><span aria-hidden="true">🏘️ </span>Pick your Villages area</h2><p class="muted">Areas are grouped by nearest town square. Village lists are examples, not complete.</p><div class="chips">'+"".join(f'<a href="#area-{k}">{E(n)}</a>' for k,n,_,_ in VIL_AREAS)+'</div></div>'
+vil_areas='<div class="grid">'+"".join(f'<div class="card" id="area-{k}"><h3>{E(n)}</h3><p class="muted">{E(where)}</p><p><b>Villages include:</b> {E(", ".join(v))}</p><p><span class="tag pending">Pending</span> No quotes yet for this area. <a href="submit.html">Share one</a> and it will be added to the area stats.</p></div>' for k,n,where,v in VIL_AREAS)+'</div><p class="muted">Area sources: <a href="https://www.thevillages.com/entertainment/town-squares/" target="_blank">The Villages town squares</a>; village groupings cross-checked against independent area guides. Price data below covers The Villages as a whole, not individual areas.</p>'
 arc="https://www.districtgov.org/wp-content/uploads/2025/04/VCCDD-LL-LC-ARC-Manual-revised-2024.pdf"
 vil=f"""<h1>The Villages: pool &amp; screen enclosure costs and rules</h1>
+{vil_pick}{vil_areas}
 <div class="card"><h3>Rules for screen enclosures (Lady Lake / Lake County portion)</h3><ul>
 <li>Architectural Review Committee approval is required before work starts; a separate city/county building permit is still needed.</li>
 <li>Approved roof styles: mansard, dome, hip, gable-hip, gambrel.</li><li>Frame and screen: black, bronze, or white.</li>
@@ -247,12 +288,12 @@ vil=f"""<h1>The Villages: pool &amp; screen enclosure costs and rules</h1>
 <div class="card"><p>Lake County enclosure permit values: see <a href="county-lake.html">Lake County</a> (unincorporated + Montverde only; Lady Lake issues its own permits).</p></div>{quotes_block}<div class="card"><h3>Builder-contributed quotes (anonymized)</h3><p>None of the builder-contributed quotes are in The Villages.</p></div>"""
 page("the-villages.html","The Villages",vil)
 # POOL TYPES
-pt="<h1>Pool types</h1>"
+pt="<h1>Swimming Pools</h1>"
 pt+=f'<div class="card"><h2>Gunite (concrete / shotcrete)</h2>{est_table(["gunite"])}</div>'
 pt+=f'<div class="card"><h2>Fiberglass</h2>{est_table(["fiberglass"])}</div>'
 pt+='<div class="card"><h2>Vinyl liner</h2><p><span class="tag pending">Pending</span> No Florida-specific published range collected yet.</p></div>'
 pt+=f'<div class="card"><h2>Pool + spa</h2>{est_table(["pool_spa"])}</div>'+quotes_block
-page("pool-types.html","Pool types",pt)
+page("pool-types.html","Swimming Pools",pt)
 # ENCLOSURE STYLES
 es=f"""<h1>Screen enclosure styles &amp; screen types</h1><div class="card"><h3>What enclosures cost (published)</h3>{est_table(["enclosure","enclosure_16x32"])}
 <ul class="muted"><li>ExpertBuildCalc: $8–$22 per sq ft of footprint.</li><li>BuildMat Insight: standard screen (110 mph) $18–$24/sq ft; HVHZ coastal $28–$38/sq ft.</li><li>AutomatedEstimating: wind-borne debris/HVHZ zones can add 15–30% to the aluminum portion.</li></ul></div>
@@ -272,16 +313,88 @@ def _cell(s): return ("<span class='tag builder'>Builder-contributed</span> "+(f
 es=es.replace("MANSARDCELL",_cell(_ba['encl_mansard'])).replace("DOMECELL",_cell(_ba['encl_dome'])).replace("<p class=\"muted\">Style-level prices will come from submitted quotes.</p>","<p class=\"muted\">Builder-contributed figures are screen enclosure line items from one builder's quotes (small sample, mixed statuses); no document states a screen type. More style-level prices will come from submitted quotes.</p>")
 page("enclosure-styles.html","Enclosure styles",es)
 # SUBMIT
-UPLOAD_URL="https://www.dropbox.com/request/c7250kquamtlmkfmr8h9"  # Dropbox file request -> /Florida Pool Cost Index/Quote Uploads (private to the owner)
+APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbxnfFPqdvtQQ5bciirvZPfE-1HTpdlm9eCJX8MkiA5tLSrsT7XDNWysdwPUq749rG_c/exec"  # Google Apps Script web app /exec URL (see apps-script/README.md)
+SUB_CSS=r""".qf{text-align:left;margin-top:10px}.qf .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.qf label{display:block;font-weight:800;color:#0f3d52;margin:12px 0 5px;font-size:15px}.qf .opt{font-weight:600;color:#5b7b8a}
+.qf input[type=text],.qf input[type=email],.qf input[type=month],.qf select{width:100%;box-sizing:border-box;padding:11px 13px;border:2px solid #bfe8ee;border-radius:14px;font:inherit;background:#fff}
+.qf input:focus,.qf select:focus{outline:none;border-color:#0a86a8;box-shadow:0 0 0 3px rgba(10,134,168,.18)}
+.qf legend.lg{font-weight:800;color:#0f3d52;margin:12px 0 5px;font-size:15px;padding:0}.qf fieldset{border:0;padding:0;margin:0}.qf .chips{display:flex;flex-wrap:wrap;gap:8px}.qf .chips label{margin:0;font-weight:700;background:#e6f7f9;border:2px solid #bfe8ee;border-radius:999px;padding:6px 14px;cursor:pointer}
+.qf .chips input{accent-color:#0a86a8;margin-right:5px}
+.drop{margin:16px 0 8px;border:3px dashed #7fd8e4;border-radius:20px;background:#f2fcfd;padding:22px 14px;text-align:center;cursor:pointer;transition:.15s}
+.drop.over,.drop:hover{background:#dff6fa;border-color:#0a86a8}.drop b{color:#0a86a8}.drop input{position:absolute;left:-9999px}
+.flist{list-style:none;padding:0;margin:8px 0}.flist li{display:flex;align-items:center;gap:10px;background:#fff;border:2px solid #e0f3f6;border-radius:14px;padding:8px 12px;margin:6px 0}
+.flist .fn{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}.flist .fs{color:#5b7b8a;font-size:14px}
+.flist button{border:0;background:#ffe3e3;color:#9b1c1c;border-radius:999px;width:30px;height:30px;font-weight:900;cursor:pointer}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.qmsg{border-radius:16px;padding:12px 16px;margin:12px 0;font-weight:700}.qmsg.err{background:#ffe8e8;border:1.5px solid #f5a3a3;color:#7f1d1d}.qmsg.ok{background:#ddf6e7;border:1.5px solid #9fdcb8;color:#14532d}.qmsg.info{background:#fff4cc;border:1.5px solid #ffd23f;color:#5c4400}
+.qf button.btn{border:0;cursor:pointer;font:inherit;font-size:19px;padding:15px 30px;margin-top:8px}.qf button.btn[disabled]{opacity:.6;cursor:wait}
+.prog{height:10px;background:#e0f3f6;border-radius:999px;overflow:hidden;margin-top:10px}.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#28c3d4,#0a86a8);transition:width .3s}
+@media (max-width:700px){.qf .row{grid-template-columns:1fr;gap:0}.qf button.btn{width:100%}}"""
+open(os.path.join(OUT,'style.css'),'a').write("\n"+SUB_CSS+"\n")
+QCSS='''.qchk{background:#f2fcfd;border:2px solid #d6f2f6;border-radius:18px;padding:14px 16px 6px;margin:6px 0 12px}
+.qrow{display:grid;grid-template-columns:repeat(3,1fr);gap:0 14px}.qfield label{display:block;font-weight:700;font-size:14px;color:#0a5f7a;margin-bottom:2px}
+.qfield select,.qfield input{width:100%;margin:2px 0 12px}.qbtn{display:flex;align-items:flex-end}.qbtn button{width:100%;margin:2px 0 12px}
+#res h4{margin:14px 0 4px;color:#0a5f7a}#res ul{margin:4px 0 6px;padding-left:20px}#res li{margin:4px 0}
+@media (max-width:700px){.qrow{grid-template-columns:1fr}.qchk{padding:12px 12px 2px}}'''
+open(os.path.join(OUT,'style.css'),'a').write("\n"+QCSS+"\n")
+_CO=["Brevard","Lake","Orange","Osceola","Polk","Seminole","Sumter","Volusia","Other"]
+_co_opts="".join(f'<option>{c}</option>' for c in _CO)
+SUB_JS=r"""<script>
+(function(){
+var URL_=document.getElementById('qform').dataset.endpoint,LIVE=URL_.indexOf('/exec')>-1;
+var OKX=['pdf','jpg','jpeg','png','heic','heif'],MAXB=10*1024*1024,MAXN=5,files=[];
+var f=document.getElementById('qform'),drop=document.getElementById('drop'),inp=document.getElementById('qfiles'),list=document.getElementById('flist'),msg=document.getElementById('qmsg'),btn=document.getElementById('qsend'),prog=document.getElementById('prog'),bar=prog.querySelector('i');
+function show(t,c){msg.textContent=t;msg.className='qmsg '+c;msg.hidden=false;}
+function sz(b){return b<1048576?Math.max(1,Math.round(b/1024))+' KB':(b/1048576).toFixed(1)+' MB';}
+if(!LIVE){show('Uploads are coming soon. Check back in a few days!','info');btn.disabled=true;}
+function render(){list.innerHTML='';files.forEach(function(x,i){var li=document.createElement('li');li.innerHTML='<span aria-hidden="true">📄</span><span class="fn"></span><span class="fs">'+sz(x.size)+'</span><button type="button" aria-label="Remove">✕</button>';li.querySelector('.fn').textContent=x.name;li.querySelector('button').onclick=function(){files.splice(i,1);render();};list.appendChild(li);});}
+function add(fl){var bad=[];for(var i=0;i<fl.length;i++){var x=fl[i],e=(x.name.split('.').pop()||'').toLowerCase();
+ if(OKX.indexOf(e)<0)bad.push(x.name+' isn\'t a PDF, JPG, PNG or HEIC file');else if(x.size>MAXB)bad.push(x.name+' is over 10 MB');else if(files.length>=MAXN)bad.push('Up to 5 files, please');else files.push(x);}
+ render();if(bad.length)show(bad.join('. ')+'.','err');else if(LIVE)msg.hidden=true;}
+inp.onchange=function(){add(inp.files);inp.value='';};
+drop.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();inp.click();}};
+['dragenter','dragover'].forEach(function(t){drop.addEventListener(t,function(e){e.preventDefault();drop.classList.add('over');});});
+['dragleave','drop'].forEach(function(t){drop.addEventListener(t,function(e){e.preventDefault();drop.classList.remove('over');});});
+drop.addEventListener('drop',function(e){add(e.dataTransfer.files);});
+function b64(x){return new Promise(function(ok,no){var r=new FileReader();r.onload=function(){ok(String(r.result).split(',')[1]);};r.onerror=no;r.readAsDataURL(x);});}
+f.onsubmit=function(e){e.preventDefault();if(!LIVE)return;
+ if(!f.county.value)return show('Please choose a county.','err');
+ if(!files.length)return show('Please add at least one quote file.','err');
+ if(f.email.value&&!f.email.checkValidity())return show('That email doesn\'t look right (it\'s optional, so you can leave it blank).','err');
+ btn.disabled=true;btn.textContent='Sending…';prog.hidden=false;bar.style.width='15%';show('Sending your quote… keep this page open.','info');
+ Promise.all(files.map(b64)).then(function(d){bar.style.width='55%';
+  var p={county:f.county.value,community:f.community.value,quoteMonth:f.month.value,permits:(f.querySelector('[name=permits]:checked')||{}).value||'',status:(f.querySelector('[name=status]:checked')||{}).value||'',email:f.email.value,website:f.website.value,
+   files:files.map(function(x,i){return{name:x.name,type:x.type,data:d[i]};})};
+  return fetch(URL_,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)});
+ }).then(function(r){bar.style.width='90%';return r.json();}).then(function(j){
+  if(!j.ok)throw new Error(j.error||'');bar.style.width='100%';files=[];render();f.reset();
+  show('Thanks! 🎉 Your quote arrived safely. It helps every Florida homeowner get a fair price.','ok');
+ }).catch(function(err){show((err&&err.message&&err.message!=='Failed to fetch'?err.message:'Something went wrong sending your files.')+' Please try again.','err');
+ }).then(function(){btn.disabled=false;btn.innerHTML='<span aria-hidden="true">⬆️</span> Send my quote';setTimeout(function(){prog.hidden=true;bar.style.width='0';},800);});
+};
+})();
+</script>"""
 sub=f"""<h1>Share a quote</h1>
 <section class="card upl" aria-labelledby="upl-h"><div class="upl-in">
 <div class="upl-ico" aria-hidden="true">📄</div>
 <h2 id="upl-h">Upload your quote files</h2>
 <p class="upl-lead">Got a pool or screen enclosure quote? Snap a photo or grab the PDF and drop it in. It takes about a minute, and you don't need an account.</p>
-<a class="btn upl-btn" href="{UPLOAD_URL}" target="_blank" rel="noopener"><span aria-hidden="true">⬆️</span> Upload your quote files</a>
-<p class="muted upl-sub">Opens a secure Dropbox upload page in a new tab.</p>
+<form id="qform" class="qf" data-endpoint="{E(APPS_SCRIPT_URL)}" novalidate>
+<div class="row"><div><label for="county">County</label><select id="county" name="county" required><option value="">Choose…</option>{_co_opts}</select></div>
+<div><label for="community">Community or city <span class="opt">(optional)</span></label><input type="text" id="community" name="community" maxlength="100" placeholder="e.g. Clermont"></div></div>
+<div class="row"><div><label for="month">Month of the quote <span class="opt">(optional)</span></label><input type="month" id="month" name="month"></div>
+<div><label for="email">Email <span class="opt">(optional, only if you'd like a reply)</span></label><input type="email" id="email" name="email" maxlength="120" autocomplete="email"></div></div>
+<fieldset><legend class="lg">Permits included?</legend><div class="chips"><label><input type="radio" name="permits" value="yes">Yes</label><label><input type="radio" name="permits" value="no">No</label><label><input type="radio" name="permits" value="unsure" checked>Not sure</label></div></fieldset>
+<fieldset><legend class="lg">Status</legend><div class="chips"><label><input type="radio" name="status" value="quoted" checked>Quoted</label><label><input type="radio" name="status" value="signed">Signed</label><label><input type="radio" name="status" value="completed">Completed</label></div></fieldset>
+<div class="hp" aria-hidden="true"><label for="website">Website</label><input type="text" id="website" name="website" tabindex="-1" autocomplete="off"></div>
+<div id="drop" class="drop" role="button" tabindex="0" onclick="document.getElementById('qfiles').click()"><div style="font-size:34px" aria-hidden="true">🏊</div><b>Tap to choose files</b> or drag them here<div class="muted">Up to 5 files, 10 MB each</div><input type="file" id="qfiles" multiple accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,application/pdf,image/jpeg,image/png,image/heic,image/heif"></div>
 <div class="upl-types" aria-label="Accepted file types"><span>PDF</span><span>JPG</span><span>PNG</span><span>HEIC (iPhone photos)</span></div>
-<p class="upl-priv"><span aria-hidden="true">🔒</span> <b>Your files go privately to the site owner.</b> They're never published. We only add anonymized totals to the county averages.</p>
+<ul id="flist" class="flist" aria-live="polite"></ul>
+<div id="qmsg" class="qmsg" role="status" aria-live="polite" hidden></div>
+<div id="prog" class="prog" hidden><i></i></div>
+<div style="text-align:center"><button type="submit" id="qsend" class="btn"><span aria-hidden="true">⬆️</span> Send my quote</button></div>
+</form>
+<p class="upl-priv" style="margin-top:16px"><span aria-hidden="true">🔒</span> <b>Your files go privately to the site owner.</b> They're never published. We only add anonymized totals to the county averages.</p>
 </div></section>
 <div class="grid grid2">
 <div class="card"><h3>What to upload</h3><ul class="ticks">
@@ -289,11 +402,10 @@ sub=f"""<h1>Share a quote</h1>
 <li>Pool quotes, screen enclosure quotes, or both</li>
 <li>Quotes you signed, are still thinking about, or turned down</li>
 <li>Feel free to <b>black out names, addresses and phone numbers</b> first</li></ul></div>
-<div class="card"><h3>Helpful details</h3><p>If these aren't already on the quote, you can put them in the file name, or upload a photo of a quick handwritten or typed note:</p><ul class="ticks">
-<li>County and community</li><li>Month of the quote</li><li><b>Permits included? (yes / no / unsure)</b></li><li>Status: quoted, signed or completed</li></ul></div>
+<div class="card"><h3>Why share?</h3><p>Every quote makes the county numbers more accurate, so the next homeowner can tell a fair price from a high one. The questions above help us compare apples to apples, especially whether permits were included.</p></div>
 </div>
 <div class="card"><h3>What happens next</h3><p>We review each quote by hand and take out any personal info. It counts toward county figures once there are enough quotes to share without identifying anyone. Your shared quotes unlock detailed breakdowns by county, pool type, enclosure style and screen type. Builder names stay private.</p></div>"""
-page("submit.html","Share a quote",sub)
+page("submit.html","Share a quote",sub,extra=SUB_JS)
 # METHODOLOGY
 src="".join(f"<li><a href='{e['url']}' target='_blank'>{E(e['name'])}</a>{(' – '+E(e['note'])) if e.get('note') else ''}</li>" for e in D['estimators'])
 cst="".join(f"<tr><td>{E(c['name'])}</td><td>{E(c['status'])}</td></tr>" for c in D['counties'])
