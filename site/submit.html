@@ -6,10 +6,22 @@
 <div class="upl-ico" aria-hidden="true">📄</div>
 <h2 id="upl-h">Upload your quote files</h2>
 <p class="upl-lead">Got a pool or screen enclosure quote? Snap a photo or grab the PDF and drop it in. It takes about a minute, and you don't need an account.</p>
-<a class="btn upl-btn" href="https://www.dropbox.com/request/c7250kquamtlmkfmr8h9" target="_blank" rel="noopener"><span aria-hidden="true">⬆️</span> Upload your quote files</a>
-<p class="muted upl-sub">Opens a secure Dropbox upload page in a new tab.</p>
+<form id="qform" class="qf" data-endpoint="https://script.google.com/macros/s/AKfycbxnfFPqdvtQQ5bciirvZPfE-1HTpdlm9eCJX8MkiA5tLSrsT7XDNWysdwPUq749rG_c/exec" novalidate>
+<div class="row"><div><label for="county">County</label><select id="county" name="county" required><option value="">Choose…</option><option>Brevard</option><option>Lake</option><option>Orange</option><option>Osceola</option><option>Polk</option><option>Seminole</option><option>Sumter</option><option>Volusia</option><option>Other</option></select></div>
+<div><label for="community">Community or city <span class="opt">(optional)</span></label><input type="text" id="community" name="community" maxlength="100" placeholder="e.g. Clermont"></div></div>
+<div class="row"><div><label for="month">Month of the quote <span class="opt">(optional)</span></label><input type="month" id="month" name="month"></div>
+<div><label for="email">Email <span class="opt">(optional, only if you'd like a reply)</span></label><input type="email" id="email" name="email" maxlength="120" autocomplete="email"></div></div>
+<fieldset><legend class="lg">Permits included?</legend><div class="chips"><label><input type="radio" name="permits" value="yes">Yes</label><label><input type="radio" name="permits" value="no">No</label><label><input type="radio" name="permits" value="unsure" checked>Not sure</label></div></fieldset>
+<fieldset><legend class="lg">Status</legend><div class="chips"><label><input type="radio" name="status" value="quoted" checked>Quoted</label><label><input type="radio" name="status" value="signed">Signed</label><label><input type="radio" name="status" value="completed">Completed</label></div></fieldset>
+<div class="hp" aria-hidden="true"><label for="website">Website</label><input type="text" id="website" name="website" tabindex="-1" autocomplete="off"></div>
+<div id="drop" class="drop" role="button" tabindex="0" onclick="document.getElementById('qfiles').click()"><div style="font-size:34px" aria-hidden="true">🏊</div><b>Tap to choose files</b> or drag them here<div class="muted">Up to 5 files, 10 MB each</div><input type="file" id="qfiles" multiple accept=".pdf,.jpg,.jpeg,.png,.heic,.heif,application/pdf,image/jpeg,image/png,image/heic,image/heif"></div>
 <div class="upl-types" aria-label="Accepted file types"><span>PDF</span><span>JPG</span><span>PNG</span><span>HEIC (iPhone photos)</span></div>
-<p class="upl-priv"><span aria-hidden="true">🔒</span> <b>Your files go privately to the site owner.</b> They're never published. We only add anonymized totals to the county averages.</p>
+<ul id="flist" class="flist" aria-live="polite"></ul>
+<div id="qmsg" class="qmsg" role="status" aria-live="polite" hidden></div>
+<div id="prog" class="prog" hidden><i></i></div>
+<div style="text-align:center"><button type="submit" id="qsend" class="btn"><span aria-hidden="true">⬆️</span> Send my quote</button></div>
+</form>
+<p class="upl-priv" style="margin-top:16px"><span aria-hidden="true">🔒</span> <b>Your files go privately to the site owner.</b> They're never published. We only add anonymized totals to the county averages.</p>
 </div></section>
 <div class="grid grid2">
 <div class="card"><h3>What to upload</h3><ul class="ticks">
@@ -17,8 +29,41 @@
 <li>Pool quotes, screen enclosure quotes, or both</li>
 <li>Quotes you signed, are still thinking about, or turned down</li>
 <li>Feel free to <b>black out names, addresses and phone numbers</b> first</li></ul></div>
-<div class="card"><h3>Helpful details</h3><p>If these aren't already on the quote, you can put them in the file name, or upload a photo of a quick handwritten or typed note:</p><ul class="ticks">
-<li>County and community</li><li>Month of the quote</li><li><b>Permits included? (yes / no / unsure)</b></li><li>Status: quoted, signed or completed</li></ul></div>
+<div class="card"><h3>Why share?</h3><p>Every quote makes the county numbers more accurate, so the next homeowner can tell a fair price from a high one. The questions above help us compare apples to apples, especially whether permits were included.</p></div>
 </div>
 <div class="card"><h3>What happens next</h3><p>We review each quote by hand and take out any personal info. It counts toward county figures once there are enough quotes to share without identifying anyone. Your shared quotes unlock detailed breakdowns by county, pool type, enclosure style and screen type. Builder names stay private.</p></div></main>
-<footer><div class="fbrand"><svg class="fmark" width="28" height="28" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><linearGradient id="fpciW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5fe0ec"/><stop offset="1" stop-color="#0a86a8"/></linearGradient></defs><rect x="3" y="3" width="58" height="58" rx="16" fill="#fff"/><rect x="3" y="3" width="58" height="58" rx="16" fill="none" stroke="#0a7ea4" stroke-width="3" stroke-dasharray="7 3"/><rect x="9" y="9" width="46" height="46" rx="11" fill="url(#fpciW)"/><circle cx="43" cy="21" r="7" fill="#ffd23f"/><path d="M15 35q4.5-5 9 0t9 0t9 0t9 0" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/><path d="M15 45q4.5-5 9 0t9 0t9 0t9 0" fill="none" stroke="#e0fbff" stroke-width="3.6" stroke-linecap="round" opacity=".85"/></svg>Florida Pool Cost Index</div>Not legal, financial, or contracting advice. Figures are labeled by source; confirm pricing with licensed contractors.<br>Not a quote or bid. Data labeled by source: <span class="tag official">Official permit data</span> <span class="tag third">Third-party aggregate</span> <span class="tag est">Published estimate</span> <span class="tag pending">Pending</span> · Updated 2026-10-17</footer></body></html>
+<footer><div class="fbrand"><svg class="fmark" width="28" height="28" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><linearGradient id="fpciW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5fe0ec"/><stop offset="1" stop-color="#0a86a8"/></linearGradient></defs><rect x="3" y="3" width="58" height="58" rx="16" fill="#fff"/><rect x="3" y="3" width="58" height="58" rx="16" fill="none" stroke="#0a7ea4" stroke-width="3" stroke-dasharray="7 3"/><rect x="9" y="9" width="46" height="46" rx="11" fill="url(#fpciW)"/><circle cx="43" cy="21" r="7" fill="#ffd23f"/><path d="M15 35q4.5-5 9 0t9 0t9 0t9 0" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/><path d="M15 45q4.5-5 9 0t9 0t9 0t9 0" fill="none" stroke="#e0fbff" stroke-width="3.6" stroke-linecap="round" opacity=".85"/></svg>Florida Pool Cost Index</div>Not legal, financial, or contracting advice. Figures are labeled by source; confirm pricing with licensed contractors.<br>Not a quote or bid. Data labeled by source: <span class="tag official">Official permit data</span> <span class="tag third">Third-party aggregate</span> <span class="tag est">Published estimate</span> <span class="tag pending">Pending</span> · Updated 2026-10-17</footer><script>
+(function(){
+var URL_=document.getElementById('qform').dataset.endpoint,LIVE=URL_.indexOf('/exec')>-1;
+var OKX=['pdf','jpg','jpeg','png','heic','heif'],MAXB=10*1024*1024,MAXN=5,files=[];
+var f=document.getElementById('qform'),drop=document.getElementById('drop'),inp=document.getElementById('qfiles'),list=document.getElementById('flist'),msg=document.getElementById('qmsg'),btn=document.getElementById('qsend'),prog=document.getElementById('prog'),bar=prog.querySelector('i');
+function show(t,c){msg.textContent=t;msg.className='qmsg '+c;msg.hidden=false;}
+function sz(b){return b<1048576?Math.max(1,Math.round(b/1024))+' KB':(b/1048576).toFixed(1)+' MB';}
+if(!LIVE){show('Uploads are coming soon. Check back in a few days!','info');btn.disabled=true;}
+function render(){list.innerHTML='';files.forEach(function(x,i){var li=document.createElement('li');li.innerHTML='<span aria-hidden="true">📄</span><span class="fn"></span><span class="fs">'+sz(x.size)+'</span><button type="button" aria-label="Remove">✕</button>';li.querySelector('.fn').textContent=x.name;li.querySelector('button').onclick=function(){files.splice(i,1);render();};list.appendChild(li);});}
+function add(fl){var bad=[];for(var i=0;i<fl.length;i++){var x=fl[i],e=(x.name.split('.').pop()||'').toLowerCase();
+ if(OKX.indexOf(e)<0)bad.push(x.name+' isn\'t a PDF, JPG, PNG or HEIC file');else if(x.size>MAXB)bad.push(x.name+' is over 10 MB');else if(files.length>=MAXN)bad.push('Up to 5 files, please');else files.push(x);}
+ render();if(bad.length)show(bad.join('. ')+'.','err');else if(LIVE)msg.hidden=true;}
+inp.onchange=function(){add(inp.files);inp.value='';};
+drop.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();inp.click();}};
+['dragenter','dragover'].forEach(function(t){drop.addEventListener(t,function(e){e.preventDefault();drop.classList.add('over');});});
+['dragleave','drop'].forEach(function(t){drop.addEventListener(t,function(e){e.preventDefault();drop.classList.remove('over');});});
+drop.addEventListener('drop',function(e){add(e.dataTransfer.files);});
+function b64(x){return new Promise(function(ok,no){var r=new FileReader();r.onload=function(){ok(String(r.result).split(',')[1]);};r.onerror=no;r.readAsDataURL(x);});}
+f.onsubmit=function(e){e.preventDefault();if(!LIVE)return;
+ if(!f.county.value)return show('Please choose a county.','err');
+ if(!files.length)return show('Please add at least one quote file.','err');
+ if(f.email.value&&!f.email.checkValidity())return show('That email doesn\'t look right (it\'s optional, so you can leave it blank).','err');
+ btn.disabled=true;btn.textContent='Sending…';prog.hidden=false;bar.style.width='15%';show('Sending your quote… keep this page open.','info');
+ Promise.all(files.map(b64)).then(function(d){bar.style.width='55%';
+  var p={county:f.county.value,community:f.community.value,quoteMonth:f.month.value,permits:(f.querySelector('[name=permits]:checked')||{}).value||'',status:(f.querySelector('[name=status]:checked')||{}).value||'',email:f.email.value,website:f.website.value,
+   files:files.map(function(x,i){return{name:x.name,type:x.type,data:d[i]};})};
+  return fetch(URL_,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)});
+ }).then(function(r){bar.style.width='90%';return r.json();}).then(function(j){
+  if(!j.ok)throw new Error(j.error||'');bar.style.width='100%';files=[];render();f.reset();
+  show('Thanks! 🎉 Your quote arrived safely. It helps every Florida homeowner get a fair price.','ok');
+ }).catch(function(err){show((err&&err.message&&err.message!=='Failed to fetch'?err.message:'Something went wrong sending your files.')+' Please try again.','err');
+ }).then(function(){btn.disabled=false;btn.innerHTML='<span aria-hidden="true">⬆️</span> Send my quote';setTimeout(function(){prog.hidden=true;bar.style.width='0';},800);});
+};
+})();
+</script></body></html>
